@@ -1,5 +1,5 @@
 {
-  "name": "portfolio-backend",
+  "name": "portfolio-builder-backend",
   "version": "1.0.0",
   "description": "TypeScript backend for portfolio website with resume parsing",
   "main": "dist/server.js",
