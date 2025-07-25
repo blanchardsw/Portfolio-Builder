@@ -1,0 +1,67 @@
+{
+  "name": "portfolio-builder",
+  "version": "1.0.0",
+  "description": "Full-stack portfolio builder with resume parsing capabilities",
+  "private": true,
+  "scripts": {
+    "install:all": "npm run install:backend && npm run install:frontend",
+    "install:backend": "cd portfolio-backend && npm install",
+    "install:frontend": "cd portfolio-frontend && npm install",
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:backend": "cd portfolio-backend && npm run dev",
+    "dev:frontend": "cd portfolio-frontend && npm start",
+    "test": "npm run test:backend && npm run test:frontend",
+    "test:backend": "cd portfolio-backend && npm run test:ci",
+    "test:frontend": "cd portfolio-frontend && npm run test:ci",
+    "test:watch": "concurrently \"npm run test:watch:backend\" \"npm run test:watch:frontend\"",
+    "test:watch:backend": "cd portfolio-backend && npm run test:watch",
+    "test:watch:frontend": "cd portfolio-frontend && npm test",
+    "test:coverage": "npm run test:coverage:backend && npm run test:coverage:frontend",
+    "test:coverage:backend": "cd portfolio-backend && npm run test:coverage",
+    "test:coverage:frontend": "cd portfolio-frontend && npm run test:coverage",
+    "build": "npm run build:backend && npm run build:frontend",
+    "build:backend": "cd portfolio-backend && npm run build",
+    "build:frontend": "cd portfolio-frontend && npm run build",
+    "build:ci": "npm run test && npm run build",
+    "start": "concurrently \"npm run start:backend\" \"npm run start:frontend\"",
+    "start:backend": "cd portfolio-backend && npm start",
+    "start:frontend": "cd portfolio-frontend && npm start",
+    "lint": "npm run lint:backend && npm run lint:frontend",
+    "lint:backend": "cd portfolio-backend && npm run lint",
+    "lint:frontend": "cd portfolio-frontend && npm run lint",
+    "clean": "npm run clean:backend && npm run clean:frontend",
+    "clean:backend": "cd portfolio-backend && rm -rf node_modules dist coverage",
+    "clean:frontend": "cd portfolio-frontend && rm -rf node_modules build coverage",
+    "audit": "npm run audit:backend && npm run audit:frontend",
+    "audit:backend": "cd portfolio-backend && npm audit",
+    "audit:frontend": "cd portfolio-frontend && npm audit",
+    "prebuild": "npm run test",
+    "postinstall": "echo 'Portfolio Builder setup complete! Run npm run dev to start development.'"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.0"
+  },
+  "workspaces": [
+    "portfolio-backend",
+    "portfolio-frontend"
+  ],
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/portfolio-builder.git"
+  },
+  "keywords": [
+    "portfolio",
+    "resume",
+    "parser",
+    "typescript",
+    "react",
+    "nodejs",
+    "express"
+  ],
+  "author": "Your Name",
+  "license": "MIT"
+}

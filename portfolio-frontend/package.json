@@ -19,8 +19,15 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build",
+    "build": "npm run test:ci && react-scripts build",
+    "build:only": "react-scripts build",
     "test": "react-scripts test",
+    "test:coverage": "react-scripts test --coverage --watchAll=false",
+    "test:ci": "react-scripts test --coverage --watchAll=false --passWithNoTests",
+    "test:debug": "react-scripts test --verbose",
+    "lint": "echo 'Linting not configured yet'",
+    "prebuild": "npm run test:ci",
+    "posttest": "echo 'Frontend tests completed successfully'",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
