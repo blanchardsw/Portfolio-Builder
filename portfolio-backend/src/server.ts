@@ -34,6 +34,22 @@ app.use('/api/portfolio', portfolioRouter);
 app.use('/api/upload', uploadRouter);
 app.use('/api/auth', authRouter);
 
+// Base API info endpoint
+app.get('/api', (req, res) => {
+  res.status(200).json({
+    message: 'Portfolio Builder API',
+    version: '1.0.0',
+    status: 'OK',
+    endpoints: {
+      portfolio: '/api/portfolio',
+      upload: '/api/upload/resume',
+      auth: '/api/auth/check-owner/:key',
+      health: '/api/health'
+    },
+    timestamp: new Date().toISOString()
+  });
+});
+
 // Health check endpoint - must respond quickly for Railway
 app.get('/api/health', (req, res) => {
   res.status(200).json({ 
