@@ -1,11 +1,8 @@
 [phases.setup]
-nixPkgs = ['nodejs-18_x', 'npm-9_x']
+nixPkgs = ['nodejs-18_x']
 
 [phases.install]
-cmds = ['npm ci']
-
-[phases.build]
-cmds = ['echo "Skipping TypeScript build - using ts-node"']
+cmds = ['npm install --production=false']
 
 [start]
 cmd = 'npx ts-node src/server.ts'
