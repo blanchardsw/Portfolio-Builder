@@ -1,7 +1,6 @@
 import { Portfolio } from '../types/portfolio';
 
-// Hardcoded to fix Netlify deployment issue - change back to env var later if needed
-const API_BASE_URL = 'https://portfolio-builder-production-3a0c.up.railway.app/api';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001/api';
 
 class PortfolioAPI {
   async getPortfolio(): Promise<Portfolio> {

@@ -46,6 +46,14 @@ function App() {
       setLoading(true);
       const data = await portfolioApi.getPortfolio();
       setPortfolio(data);
+      
+      // Update document title with candidate's name
+      if (data.personalInfo?.name) {
+        document.title = `${data.personalInfo.name} Portfolio`;
+      } else {
+        document.title = 'Portfolio';
+      }
+      
       setError(null);
     } catch (err) {
       console.log('No portfolio data found - showing upload option');
@@ -58,6 +66,14 @@ function App() {
 
   const handleResumeUploaded = (newPortfolio: Portfolio) => {
     setPortfolio(newPortfolio);
+    
+    // Update document title with new candidate's name
+    if (newPortfolio.personalInfo?.name) {
+      document.title = `${newPortfolio.personalInfo.name} Portfolio`;
+    } else {
+      document.title = 'Portfolio';
+    }
+    
     setShowUpload(false);
     setError(null);
   };
