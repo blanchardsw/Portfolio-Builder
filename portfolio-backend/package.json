@@ -4,10 +4,8 @@
   "description": "TypeScript backend for portfolio website with resume parsing",
   "main": "dist/server.js",
   "scripts": {
-    "start": "node dist/server.js",
+    "start": "npx ts-node src/server.ts",
     "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
-    "build": "npx tsc",
-    "railway:build": "echo 'Using pre-compiled JavaScript files'",
     "test": "jest"
   },
   "dependencies": {
