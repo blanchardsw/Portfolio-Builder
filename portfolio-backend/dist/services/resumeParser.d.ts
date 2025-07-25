@@ -30,5 +30,13 @@ export declare class ResumeParser {
      * Enrich work experience entries with company website information
      */
     private enrichWithCompanyWebsites;
+    /**
+     * Fast synchronous company website lookup using known companies mapping
+     */
+    private enrichWithCompanyWebsitesFast;
+    /**
+     * Asynchronously enrich work experience entries with company websites (non-blocking)
+     */
+    private enrichWithCompanyWebsitesAsync;
 }
 //# sourceMappingURL=resumeParser.d.ts.map

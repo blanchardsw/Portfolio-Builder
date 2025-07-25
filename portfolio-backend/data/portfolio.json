@@ -2,7 +2,8 @@
   "personalInfo": {
     "name": "Stephen Blanchard",
     "email": "blanchardsw@yahoo.com",
-    "phone": "337-303-5029"
+    "phone": "337-303-5029",
+    "summary": "Senior Software Engineer with 11+ years of experience specializing in .NET, SQL, REST, T-SQL, AWS and other technologies. Proven track record in full-stack development, system architecture, and delivering scalable solutions."
   },
   "workExperience": [
     {
@@ -20,7 +21,8 @@
         "Improved performance of the team’s payload management service by reducing calls to AWS S3, resulting in a reduction of latency from 1 second to 1 microsecond on average.",
         "Mentored and trained two engineers at the SE and SEII level."
       ],
-      "technologies": []
+      "technologies": [],
+      "website": "https://www.firstam.com"
     },
     {
       "id": "exp_2",
@@ -38,7 +40,8 @@
         "Wrote test automation using Ruby with Cucumber and Gherkin",
         "Mentored and trained two junior engineers."
       ],
-      "technologies": []
+      "technologies": [],
+      "website": "https://www.kaseya.com"
     },
     {
       "id": "exp_3",
@@ -54,7 +57,8 @@
         "Assisted in establishing new department-wide standards for development and game aesthetics",
         "Developed means of darkening game symbols when not part of a line win while simultaneously highlighting those that"
       ],
-      "technologies": []
+      "technologies": [],
+      "website": "https://www.ainsworth.com.au"
     },
     {
       "id": "exp_4",
@@ -70,7 +74,8 @@
         "Used HTTP requests (REST) to sync client data, get order tracking information, and provide technicians with directions to client locations using Google’s API",
         "Published internal C#/ASP.NET web page through IIS to display customer ticketing information with color codes based on ticket age and response times to encourage prompt action in resolving tickets."
       ],
-      "technologies": []
+      "technologies": [],
+      "website": "https://edcnow.com"
     }
   ],
   "education": [
@@ -81,10 +86,11 @@
       "field": "Computer Science",
       "startDate": "December 2015",
       "honors": [],
-      "coursework": []
+      "coursework": [],
+      "website": "https://www.louisiana.edu"
     }
   ],
   "skills": [],
   "projects": [],
-  "lastUpdated": "2025-07-25T02:10:06.774Z"
+  "lastUpdated": "2025-07-25T03:40:33.940Z"
 }

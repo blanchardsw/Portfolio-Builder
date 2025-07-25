@@ -26,7 +26,20 @@ export const Education: React.FC<EducationProps> = ({ education }) => {
               <div className="education-title">
                 <h3 className="degree">{edu.degree}</h3>
                 <h4 className="field">{edu.field}</h4>
-                <h4 className="institution">{edu.institution}</h4>
+                {edu.website ? (
+                  <h4 className="institution">
+                    <a 
+                      href={edu.website} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="institution-link"
+                    >
+                      {edu.institution}
+                    </a>
+                  </h4>
+                ) : (
+                  <h4 className="institution">{edu.institution}</h4>
+                )}
               </div>
               <div className="education-meta">
                 <span className="date-range">

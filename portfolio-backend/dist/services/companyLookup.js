@@ -9,6 +9,23 @@ class CompanyLookupService {
     constructor() {
         this.cache = new Map();
         this.timeout = 5000; // 5 second timeout
+        this.knownCompanies = new Map([
+            ['google', 'www.google.com'],
+            ['microsoft', 'www.microsoft.com'],
+            ['apple', 'www.apple.com'],
+            ['amazon', 'www.amazon.com'],
+            ['facebook', 'www.facebook.com'],
+            ['meta', 'www.meta.com'],
+            ['netflix', 'www.netflix.com'],
+            ['spotify', 'www.spotify.com'],
+            ['airbnb', 'www.airbnb.com'],
+            ['uber', 'www.uber.com'],
+            ['lyft', 'www.lyft.com'],
+            ['tesla', 'www.tesla.com'],
+            ['kaseya', 'www.kaseya.com'],
+            ['ainsworth game technology', 'www.ainsworth.com.au'],
+            ['ainsworth', 'www.ainsworth.com.au']
+        ]);
     }
     /**
      * Find the homepage URL for a company
@@ -162,6 +179,29 @@ class CompanyLookupService {
         catch (error) {
             return false;
         }
+    }
+    /**
+     * Generate a simple domain pattern for fast lookup (no HTTP validation)
+     */
+    generateSimpleDomain(companyName) {
+        const cleaned = companyName.toLowerCase()
+            .replace(/[^a-z0-9\s]/g, '')
+            .replace(/\s+/g, '')
+            .replace(/inc$|llc$|corp$|corporation$|company$|co$|ltd$|limited$/, '')
+            .trim();
+        if (cleaned.length < 2) {
+            return null;
+        }
+        // Only return for well-known patterns
+        const commonPatterns = [
+            'google', 'microsoft', 'apple', 'amazon', 'facebook', 'meta',
+            'netflix', 'spotify', 'airbnb', 'uber', 'lyft', 'tesla',
+            'adobe', 'salesforce', 'oracle', 'ibm', 'intel', 'nvidia'
+        ];
+        if (commonPatterns.includes(cleaned)) {
+            return `${cleaned}.com`;
+        }
+        return null;
     }
     /**
      * Batch lookup multiple companies

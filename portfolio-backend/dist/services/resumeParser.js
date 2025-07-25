@@ -81,10 +81,10 @@ class ResumeParser {
     }
     async extractDataFromText(text) {
         const lines = text.split('\n').map(line => line.trim()).filter(line => line.length > 0);
-        // Extract basic data
+        // Extract basic data first (fast)
         const workExperience = this.extractWorkExperience(text, lines);
-        // Enrich work experience with company websites
-        const enrichedWorkExperience = await this.enrichWithCompanyWebsites(workExperience);
+        // Enrich work experience with company websites using fast lookup (synchronous)
+        const enrichedWorkExperience = this.enrichWithCompanyWebsitesFast(workExperience);
         return {
             personalInfo: this.extractPersonalInfo(text, lines),
             workExperience: enrichedWorkExperience,
@@ -739,6 +739,84 @@ class ResumeParser {
             return exp;
         }));
         return enrichedExperiences;
+    }
+    /**
+     * Fast synchronous company website lookup using known companies mapping
+     */
+    enrichWithCompanyWebsitesFast(experiences) {
+        // Known company mappings for immediate lookup
+        const knownCompanies = {
+            'google': 'https://www.google.com',
+            'microsoft': 'https://www.microsoft.com',
+            'apple': 'https://www.apple.com',
+            'amazon': 'https://www.amazon.com',
+            'facebook': 'https://www.facebook.com',
+            'meta': 'https://www.meta.com',
+            'netflix': 'https://www.netflix.com',
+            'spotify': 'https://www.spotify.com',
+            'airbnb': 'https://www.airbnb.com',
+            'uber': 'https://www.uber.com',
+            'lyft': 'https://www.lyft.com',
+            'tesla': 'https://www.tesla.com',
+            'kaseya': 'https://www.kaseya.com',
+            'ainsworth game technology': 'https://www.ainsworth.com.au',
+            'ainsworth': 'https://www.ainsworth.com.au',
+            'ibm': 'https://www.ibm.com',
+            'oracle': 'https://www.oracle.com',
+            'salesforce': 'https://www.salesforce.com',
+            'adobe': 'https://www.adobe.com',
+            'intel': 'https://www.intel.com',
+            'nvidia': 'https://www.nvidia.com',
+            'amd': 'https://www.amd.com',
+            'cisco': 'https://www.cisco.com',
+            'vmware': 'https://www.vmware.com',
+            'red hat': 'https://www.redhat.com',
+            'redhat': 'https://www.redhat.com',
+            'mongodb': 'https://www.mongodb.com',
+            'atlassian': 'https://www.atlassian.com',
+            'slack': 'https://slack.com',
+            'zoom': 'https://zoom.us',
+            'dropbox': 'https://www.dropbox.com',
+            'github': 'https://github.com',
+            'gitlab': 'https://gitlab.com',
+            'bitbucket': 'https://bitbucket.org',
+            'jira': 'https://www.atlassian.com/software/jira',
+            'confluence': 'https://www.atlassian.com/software/confluence'
+        };
+        return experiences.map(exp => {
+            if (exp.company && exp.company.trim().length > 0) {
+                const normalizedCompany = exp.company.toLowerCase()
+                    .replace(/\b(inc|corp|corporation|ltd|limited|llc|company|co)\b\.?/g, '')
+                    .replace(/[^\w\s]/g, '')
+                    .trim();
+                // Check for exact matches or partial matches
+                for (const [key, website] of Object.entries(knownCompanies)) {
+                    if (normalizedCompany === key ||
+                        normalizedCompany.includes(key) ||
+                        key.includes(normalizedCompany)) {
+                        return {
+                            ...exp,
+                            website: website
+                        };
+                    }
+                }
+            }
+            return exp;
+        });
+    }
+    /**
+     * Asynchronously enrich work experience entries with company websites (non-blocking)
+     */
+    enrichWithCompanyWebsitesAsync(experiences) {
+        // Run in background without blocking
+        this.enrichWithCompanyWebsites(experiences)
+            .then(enrichedExperiences => {
+            console.log('Company websites enriched for', enrichedExperiences.length, 'experiences');
+            // Could emit an event or update a cache here if needed
+        })
+            .catch(error => {
+            console.log('Error enriching company websites:', error);
+        });
     }
 }
 exports.ResumeParser = ResumeParser;

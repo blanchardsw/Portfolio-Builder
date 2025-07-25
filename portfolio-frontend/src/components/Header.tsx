@@ -14,9 +14,6 @@ export const Header: React.FC<HeaderProps> = ({ portfolio, onUploadClick }) => {
           <h1 className="portfolio-title">
             {portfolio?.personalInfo.name || 'Your Portfolio'}
           </h1>
-          {portfolio?.personalInfo.summary && (
-            <p className="portfolio-subtitle">{portfolio.personalInfo.summary}</p>
-          )}
         </div>
         <div className="header-right">
           <button 

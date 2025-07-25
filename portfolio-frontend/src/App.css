@@ -428,6 +428,26 @@ body {
   border: 1px solid rgba(72, 187, 120, 0.3);
 }
 
+.institution-link {
+  color: #667eea;
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.institution-link:hover {
+  color: #5a67d8;
+  text-decoration: underline;
+  transform: translateY(-1px);
+}
+
+.institution-link::after {
+  content: ' 🔗';
+  font-size: 0.8em;
+  opacity: 0.7;
+}
+
 /* Skills */
 .skills-category {
   margin-bottom: 30px;

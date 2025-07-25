@@ -54,13 +54,21 @@ export class ResumeParser {
     // Extract basic data first (fast)
     const workExperience = this.extractWorkExperience(text, lines);
     
-    // Enrich work experience with company websites using fast lookup (synchronous)
-    const enrichedWorkExperience = this.enrichWithCompanyWebsitesFast(workExperience);
+    // Enrich work experience with company websites using fast lookup with internet fallback
+    const enrichedWorkExperience = await this.enrichWithCompanyWebsitesFast(workExperience);
+    
+    // Extract and enrich education with institution websites
+    const education = this.extractEducation(text, lines);
+    const enrichedEducation = await this.enrichWithEducationWebsites(education);
+    
+    // Extract personal info and generate professional summary
+    const personalInfo = this.extractPersonalInfo(text, lines);
+    const enhancedPersonalInfo = this.generateProfessionalSummary(personalInfo, enrichedWorkExperience, enrichedEducation);
     
     return {
-      personalInfo: this.extractPersonalInfo(text, lines),
+      personalInfo: enhancedPersonalInfo,
       workExperience: enrichedWorkExperience,
-      education: this.extractEducation(text, lines),
+      education: enrichedEducation,
       skills: this.extractSkills(text, lines),
       projects: this.extractProjects(text, lines)
     };
@@ -800,6 +808,483 @@ export class ResumeParser {
     return enrichedExperiences;
   }
   
+  /**
+   * Fast company website lookup using known companies mapping with automatic fallback to internet search
+   */
+  private async enrichWithCompanyWebsitesFast(experiences: Partial<WorkExperience>[]): Promise<Partial<WorkExperience>[]> {
+    // Known company mappings for immediate lookup
+    const knownCompanies: { [key: string]: string } = {
+      'google': 'https://www.google.com',
+      'microsoft': 'https://www.microsoft.com',
+      'apple': 'https://www.apple.com',
+      'amazon': 'https://www.amazon.com',
+      'facebook': 'https://www.facebook.com',
+      'meta': 'https://www.meta.com',
+      'netflix': 'https://www.netflix.com',
+      'spotify': 'https://www.spotify.com',
+      'airbnb': 'https://www.airbnb.com',
+      'uber': 'https://www.uber.com',
+      'lyft': 'https://www.lyft.com',
+      'tesla': 'https://www.tesla.com',
+      'kaseya': 'https://www.kaseya.com',
+      'ainsworth game technology': 'https://www.ainsworth.com.au',
+      'ainsworth': 'https://www.ainsworth.com.au',
+      'ibm': 'https://www.ibm.com',
+      'oracle': 'https://www.oracle.com',
+      'salesforce': 'https://www.salesforce.com',
+      'adobe': 'https://www.adobe.com',
+      'intel': 'https://www.intel.com',
+      'nvidia': 'https://www.nvidia.com',
+      'amd': 'https://www.amd.com',
+      'cisco': 'https://www.cisco.com',
+      'vmware': 'https://www.vmware.com',
+      'red hat': 'https://www.redhat.com',
+      'redhat': 'https://www.redhat.com',
+      'mongodb': 'https://www.mongodb.com',
+      'atlassian': 'https://www.atlassian.com',
+      'slack': 'https://slack.com',
+      'zoom': 'https://zoom.us',
+      'dropbox': 'https://www.dropbox.com',
+      'github': 'https://github.com',
+      'gitlab': 'https://gitlab.com',
+      'bitbucket': 'https://bitbucket.org',
+      'jira': 'https://www.atlassian.com/software/jira',
+      'confluence': 'https://www.atlassian.com/software/confluence',
+      'first american title': 'https://www.firstam.com',
+      'first american': 'https://www.firstam.com',
+      'enterprise data concepts': 'https://edcnow.com',
+      'edc': 'https://edcnow.com'
+    };
+
+    const enrichedExperiences = await Promise.all(
+      experiences.map(async (exp) => {
+        if (exp.company && exp.company.trim().length > 0) {
+          const normalizedCompany = exp.company.toLowerCase()
+            .replace(/\b(inc|corp|corporation|ltd|limited|llc|company|co)\b\.?/g, '')
+            .replace(/[^\w\s]/g, '')
+            .trim();
+
+          console.log(`[DEBUG] Processing company: "${exp.company}" -> normalized: "${normalizedCompany}"`);
+
+          // First, check known companies for fast lookup
+          for (const [key, website] of Object.entries(knownCompanies)) {
+            if (normalizedCompany === key || 
+                normalizedCompany.includes(key) || 
+                key.includes(normalizedCompany)) {
+              console.log(`[DEBUG] FAST MATCH FOUND! "${normalizedCompany}" matches "${key}" -> ${website}`);
+              return {
+                ...exp,
+                website: website
+              };
+            }
+          }
+
+          // If not in known companies, use CompanyLookupService to search the internet
+          console.log(`[DEBUG] No fast match found for "${normalizedCompany}", searching internet...`);
+          try {
+            const companyInfo = await this.companyLookup.findCompanyWebsite(exp.company);
+            if (companyInfo.website) {
+              console.log(`[DEBUG] INTERNET SEARCH SUCCESS! Found website for "${exp.company}" -> ${companyInfo.website}`);
+              return {
+                ...exp,
+                website: companyInfo.website
+              };
+            }
+          } catch (error) {
+            console.log(`[DEBUG] Internet search failed for "${exp.company}":`, error);
+          }
+
+          console.log(`[DEBUG] No website found for "${normalizedCompany}"`);
+        }
+        return exp;
+      })
+    );
+
+    return enrichedExperiences;
+  }
+
+  /**
+   * Enrich education entries with institution websites using automatic lookup
+   */
+  private async enrichWithEducationWebsites(educationEntries: Partial<Education>[]): Promise<Partial<Education>[]> {
+    // Known educational institutions for fast lookup
+    const knownInstitutions: { [key: string]: string } = {
+      'university of louisiana at lafayette': 'https://www.louisiana.edu',
+      'ull': 'https://www.louisiana.edu',
+      'louisiana': 'https://www.louisiana.edu',
+      'harvard university': 'https://www.harvard.edu',
+      'harvard': 'https://www.harvard.edu',
+      'stanford university': 'https://www.stanford.edu',
+      'stanford': 'https://www.stanford.edu',
+      'mit': 'https://www.mit.edu',
+      'massachusetts institute of technology': 'https://www.mit.edu',
+      'university of california berkeley': 'https://www.berkeley.edu',
+      'uc berkeley': 'https://www.berkeley.edu',
+      'berkeley': 'https://www.berkeley.edu',
+      'university of texas at austin': 'https://www.utexas.edu',
+      'ut austin': 'https://www.utexas.edu',
+      'georgia institute of technology': 'https://www.gatech.edu',
+      'georgia tech': 'https://www.gatech.edu',
+      'carnegie mellon university': 'https://www.cmu.edu',
+      'carnegie mellon': 'https://www.cmu.edu',
+      'cmu': 'https://www.cmu.edu',
+      'university of washington': 'https://www.washington.edu',
+      'uw': 'https://www.washington.edu',
+      'university of michigan': 'https://www.umich.edu',
+      'umich': 'https://www.umich.edu',
+      'michigan': 'https://www.umich.edu',
+      'yale university': 'https://www.yale.edu',
+      'yale': 'https://www.yale.edu',
+      'princeton university': 'https://www.princeton.edu',
+      'princeton': 'https://www.princeton.edu',
+      'columbia university': 'https://www.columbia.edu',
+      'columbia': 'https://www.columbia.edu',
+      'university of pennsylvania': 'https://www.upenn.edu',
+      'upenn': 'https://www.upenn.edu',
+      'penn': 'https://www.upenn.edu',
+      'cornell university': 'https://www.cornell.edu',
+      'cornell': 'https://www.cornell.edu',
+      'caltech': 'https://www.caltech.edu',
+      'california institute of technology': 'https://www.caltech.edu',
+      'university of southern california': 'https://www.usc.edu',
+      'usc': 'https://www.usc.edu',
+      'new york university': 'https://www.nyu.edu',
+      'nyu': 'https://www.nyu.edu'
+    };
+
+    const enrichedEducation = await Promise.all(
+      educationEntries.map(async (edu) => {
+        if (edu.institution && edu.institution.trim().length > 0) {
+          const normalizedInstitution = edu.institution.toLowerCase()
+            .replace(/\b(university|college|institute|school)\b/g, '')
+            .replace(/[^\w\s]/g, '')
+            .trim();
+
+          console.log(`[DEBUG] Processing institution: "${edu.institution}" -> normalized: "${normalizedInstitution}"`);
+
+          // First, check known institutions for fast lookup
+          for (const [key, website] of Object.entries(knownInstitutions)) {
+            if (normalizedInstitution.includes(key.replace(/\b(university|college|institute|school)\b/g, '').trim()) || 
+                key.includes(normalizedInstitution) ||
+                normalizedInstitution === key) {
+              console.log(`[DEBUG] FAST MATCH FOUND! "${normalizedInstitution}" matches "${key}" -> ${website}`);
+              return {
+                ...edu,
+                website: website
+              };
+            }
+          }
+
+          // If not in known institutions, use CompanyLookupService to search the internet
+          console.log(`[DEBUG] No fast match found for "${normalizedInstitution}", searching internet...`);
+          try {
+            const institutionInfo = await this.companyLookup.findCompanyWebsite(edu.institution);
+            if (institutionInfo.website) {
+              console.log(`[DEBUG] INTERNET SEARCH SUCCESS! Found website for "${edu.institution}" -> ${institutionInfo.website}`);
+              return {
+                ...edu,
+                website: institutionInfo.website
+              };
+            }
+          } catch (error) {
+            console.log(`[DEBUG] Internet search failed for "${edu.institution}":`, error);
+          }
+
+          console.log(`[DEBUG] No website found for "${normalizedInstitution}"`);
+        }
+        return edu;
+      })
+    );
+
+    return enrichedEducation;
+  }
+
+  /**
+   * Generate a professional summary based on work experience and education
+   */
+  private generateProfessionalSummary(
+    personalInfo: Partial<PersonalInfo>, 
+    workExperience: Partial<WorkExperience>[], 
+    education: Partial<Education>[]
+  ): Partial<PersonalInfo> {
+    if (!workExperience || workExperience.length === 0) {
+      return personalInfo;
+    }
+
+    // Calculate years of experience
+    const yearsOfExperience = this.calculateYearsOfExperience(workExperience);
+    
+    // Extract key technologies and skills from work experience
+    const technologies = this.extractTechnologiesFromExperience(workExperience);
+    
+    // Determine primary role/title based on most recent positions
+    const primaryRole = this.determinePrimaryRole(workExperience);
+    
+    // Get education level
+    const educationLevel = this.getHighestEducationLevel(education);
+    
+    // Generate summary
+    const summary = this.buildProfessionalSummary({
+      yearsOfExperience,
+      technologies,
+      primaryRole,
+      educationLevel,
+      name: personalInfo.name
+    });
+
+    console.log(`[DEBUG] Generated professional summary: ${summary}`);
+
+    return {
+      ...personalInfo,
+      summary: summary
+    };
+  }
+
+  /**
+   * Calculate total years of professional experience
+   */
+  private calculateYearsOfExperience(workExperience: Partial<WorkExperience>[]): number {
+    let totalMonths = 0;
+    
+    for (const exp of workExperience) {
+      if (exp.startDate) {
+        const startDate = this.parseDate(exp.startDate);
+        const endDate = exp.current ? new Date() : (exp.endDate ? this.parseDate(exp.endDate) : new Date());
+        
+        if (startDate && endDate) {
+          const months = (endDate.getFullYear() - startDate.getFullYear()) * 12 + 
+                        (endDate.getMonth() - startDate.getMonth());
+          totalMonths += Math.max(0, months);
+        }
+      }
+    }
+    
+    return Math.floor(totalMonths / 12); // Round down to nearest whole number
+  }
+
+  /**
+   * Extract key technologies from work experience descriptions, ordered by frequency
+   */
+  private extractTechnologiesFromExperience(workExperience: Partial<WorkExperience>[]): string[] {
+    const techKeywords = [
+      'C#', '.NET', 'JavaScript', 'TypeScript', 'React', 'Angular', 'Vue', 'Node.js',
+      'Python', 'Java', 'C++', 'AWS', 'Azure', 'Docker', 'Kubernetes', 'SQL', 'MongoDB',
+      'PostgreSQL', 'MySQL', 'Redis', 'REST', 'GraphQL', 'Git', 'Jenkins', 'CI/CD',
+      'Agile', 'Scrum', 'T-SQL', 'DynamoDB', 'OpenSearch', 'Kafka', 'SQS', 'S3',
+      'Ruby', 'Cucumber', 'Entity Framework', 'ASP.NET', 'HTML', 'CSS', 'SASS',
+      'Webpack', 'Babel', 'Express', 'Spring', 'Django', 'Flask', 'Laravel'
+    ];
+    
+    const techCounts = new Map<string, number>();
+    
+    // Count occurrences of each technology
+    for (const exp of workExperience) {
+      const text = `${exp.position || ''} ${exp.description?.join(' ') || ''}`;
+      
+      for (const tech of techKeywords) {
+        // Special handling for technologies with special characters
+        let regex;
+        switch (tech) {
+          case 'C#':
+            // Match C# in various contexts (C#/.NET, C#/.Net, standalone C#)
+            regex = /C#(?:\/\.NET|\/\.Net|\b)/gi;
+            break;
+          case 'C++':
+            // Match C++ with proper escaping of plus symbols
+            regex = /\bC\+\+\b/gi;
+            break;
+          case '.NET':
+            // Match .NET in various contexts
+            regex = /\.NET\b/gi;
+            break;
+          case 'ASP.NET':
+            // Match ASP.NET with escaped dot
+            regex = /\bASP\.NET\b/gi;
+            break;
+          case 'Node.js':
+            // Match Node.js with escaped dot
+            regex = /\bNode\.js\b/gi;
+            break;
+          case 'Vue.js':
+            // Match Vue.js with escaped dot
+            regex = /\bVue\.js\b/gi;
+            break;
+          case 'Next.js':
+            // Match Next.js with escaped dot
+            regex = /\bNext\.js\b/gi;
+            break;
+          case 'Express.js':
+            // Match Express.js with escaped dot
+            regex = /\bExpress\.js\b/gi;
+            break;
+          case 'D3.js':
+            // Match D3.js with escaped dot
+            regex = /\bD3\.js\b/gi;
+            break;
+          case 'Chart.js':
+            // Match Chart.js with escaped dot
+            regex = /\bChart\.js\b/gi;
+            break;
+          case 'Three.js':
+            // Match Three.js with escaped dot
+            regex = /\bThree\.js\b/gi;
+            break;
+          case 'Objective-C':
+            // Match Objective-C with escaped hyphen
+            regex = /\bObjective-C\b/gi;
+            break;
+          case 'F#':
+            // Match F# with escaped hash
+            regex = /\bF#\b/gi;
+            break;
+          case 'Q#':
+            // Match Q# (Microsoft quantum language)
+            regex = /\bQ#\b/gi;
+            break;
+          case 'T-SQL':
+            // Match T-SQL with escaped hyphen
+            regex = /\bT-SQL\b/gi;
+            break;
+          case 'PL/SQL':
+            // Match PL/SQL with escaped slash
+            regex = /\bPL\/SQL\b/gi;
+            break;
+          case 'X++':
+            // Match X++ (Microsoft Dynamics language)
+            regex = /\bX\+\+\b/gi;
+            break;
+          default:
+            // Escape special regex characters for other technologies
+            const escapedTech = tech.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            regex = new RegExp(`\\b${escapedTech}\\b`, 'gi');
+            break;
+        }
+        
+        const matches = text.match(regex);
+        if (matches) {
+          const currentCount = techCounts.get(tech) || 0;
+          techCounts.set(tech, currentCount + matches.length);
+        }
+      }
+    }
+    
+    // Sort technologies by frequency (most to least) and return top 8
+    const sortedTechs = Array.from(techCounts.entries())
+      .sort((a, b) => b[1] - a[1]) // Sort by count descending
+      .map(([tech, count]) => {
+        console.log(`[DEBUG] Technology frequency: ${tech} = ${count} occurrences`);
+        return tech;
+      })
+      .slice(0, 8);
+    
+    return sortedTechs;
+  }
+
+  /**
+   * Determine primary role based on most recent positions
+   */
+  private determinePrimaryRole(workExperience: Partial<WorkExperience>[]): string {
+    if (workExperience.length === 0) return 'Software Professional';
+    
+    // Get the most recent position
+    const recentExp = workExperience[0];
+    const position = recentExp.position || '';
+    
+    // Extract role from position title
+    if (position.toLowerCase().includes('senior')) {
+      if (position.toLowerCase().includes('engineer')) return 'Senior Software Engineer';
+      if (position.toLowerCase().includes('developer')) return 'Senior Software Developer';
+      return 'Senior Software Professional';
+    }
+    
+    if (position.toLowerCase().includes('engineer')) return 'Software Engineer';
+    if (position.toLowerCase().includes('developer')) return 'Software Developer';
+    if (position.toLowerCase().includes('architect')) return 'Software Architect';
+    if (position.toLowerCase().includes('lead')) return 'Technical Lead';
+    
+    return 'Software Professional';
+  }
+
+  /**
+   * Get highest education level
+   */
+  private getHighestEducationLevel(education: Partial<Education>[]): string {
+    if (!education || education.length === 0) return '';
+    
+    for (const edu of education) {
+      const degree = edu.degree?.toLowerCase() || '';
+      if (degree.includes('phd') || degree.includes('doctorate')) return 'PhD';
+      if (degree.includes('master')) return "Master's degree";
+      if (degree.includes('bachelor')) return "Bachelor's degree";
+    }
+    
+    return education[0]?.degree || '';
+  }
+
+  /**
+   * Build the professional summary text
+   */
+  private buildProfessionalSummary(data: {
+    yearsOfExperience: number;
+    technologies: string[];
+    primaryRole: string;
+    educationLevel: string;
+    name?: string;
+  }): string {
+    const { yearsOfExperience, technologies, primaryRole, educationLevel } = data;
+    
+    let summary = `${primaryRole} with ${yearsOfExperience}+ years of experience`;
+    
+    if (technologies.length > 0) {
+      const techList = technologies.slice(0, 5).join(', ');
+      summary += ` specializing in ${techList}`;
+      if (technologies.length > 5) {
+        summary += ` and other technologies`;
+      }
+    }
+    
+    summary += '. Proven track record in full-stack development, system architecture, and delivering scalable solutions.';
+    
+    return summary;
+  }
+
+  /**
+   * Parse date string to Date object
+   */
+  private parseDate(dateString: string): Date | null {
+    if (!dateString) return null;
+    
+    // Handle various date formats
+    const cleanDate = dateString.toLowerCase().replace(/present|current/, new Date().getFullYear().toString());
+    
+    // Try parsing different formats
+    const formats = [
+      /^(\w+)\s+(\d{4})$/, // "August 2021"
+      /^(\d{1,2})\/(\d{4})$/, // "8/2021"
+      /^(\d{4})$/ // "2021"
+    ];
+    
+    for (const format of formats) {
+      const match = cleanDate.match(format);
+      if (match) {
+        if (format === formats[0]) { // Month Year
+          const monthNames = ['january', 'february', 'march', 'april', 'may', 'june',
+                             'july', 'august', 'september', 'october', 'november', 'december'];
+          const monthIndex = monthNames.indexOf(match[1].toLowerCase());
+          if (monthIndex !== -1) {
+            return new Date(parseInt(match[2]), monthIndex, 1);
+          }
+        } else if (format === formats[1]) { // MM/YYYY
+          return new Date(parseInt(match[2]), parseInt(match[1]) - 1, 1);
+        } else if (format === formats[2]) { // YYYY
+          return new Date(parseInt(match[1]), 0, 1);
+        }
+      }
+    }
+    
+    return new Date(dateString); // Fallback to native parsing
+  }
+
   /**
    * Asynchronously enrich work experience entries with company websites (non-blocking)
    */

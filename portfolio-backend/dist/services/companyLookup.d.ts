@@ -6,6 +6,7 @@ export interface CompanyInfo {
 export declare class CompanyLookupService {
     private cache;
     private readonly timeout;
+    private knownCompanies;
     /**
      * Find the homepage URL for a company
      * @param companyName The name of the company to look up
@@ -32,6 +33,10 @@ export declare class CompanyLookupService {
      * Check if a URL is a valid, accessible website
      */
     private isValidWebsite;
+    /**
+     * Generate a simple domain pattern for fast lookup (no HTTP validation)
+     */
+    private generateSimpleDomain;
     /**
      * Batch lookup multiple companies
      */
