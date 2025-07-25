@@ -30,6 +30,7 @@ export interface Education {
     gpa?: string;
     honors?: string[];
     coursework?: string[];
+    website?: string;
 }
 export interface Skill {
     name: string;

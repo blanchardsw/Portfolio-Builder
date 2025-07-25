@@ -82,7 +82,8 @@ class PortfolioService {
                 current: exp.current || false,
                 description: exp.description || [],
                 technologies: exp.technologies || [],
-                location: exp.location
+                location: exp.location,
+                website: exp.website
             })),
             education: parsedData.education.map((edu, index) => ({
                 id: edu.id || `edu_${index + 1}`,
@@ -93,7 +94,8 @@ class PortfolioService {
                 endDate: edu.endDate,
                 gpa: edu.gpa,
                 honors: edu.honors || [],
-                coursework: edu.coursework || []
+                coursework: edu.coursework || [],
+                website: edu.website
             })),
             skills: parsedData.skills.map(skill => ({
                 name: skill.name || '',

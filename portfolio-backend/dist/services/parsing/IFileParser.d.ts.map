@@ -1,0 +1,1 @@
+{"version":3,"file":"IFileParser.d.ts","sourceRoot":"","sources":["../../../src/services/parsing/IFileParser.ts"],"names":[],"mappings":"AAAA;;;GAGG;AACH,MAAM,WAAW,WAAW;IAC1B,QAAQ,CAAC,QAAQ,EAAE,MAAM,GAAG,OAAO,CAAC;IACpC,KAAK,CAAC,QAAQ,EAAE,MAAM,GAAG,OAAO,CAAC,MAAM,CAAC,CAAC;CAC1C;AAED,oBAAY,kBAAkB;IAC5B,GAAG,oBAAoB;IACvB,IAAI,4EAA4E;IAChF,IAAI,eAAe;CACpB"}
