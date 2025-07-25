@@ -1,0 +1,90 @@
+{
+  "personalInfo": {
+    "name": "Stephen Blanchard",
+    "email": "blanchardsw@yahoo.com",
+    "phone": "337-303-5029"
+  },
+  "workExperience": [
+    {
+      "id": "exp_1",
+      "company": "First American Title",
+      "position": "Senior Software Engineer (C#/.Net, AWS, Typescript, T-SQL)",
+      "startDate": "August 2021",
+      "current": true,
+      "description": [
+        "Developing API services in C#/.NET, leveraging OpenSearch and DynamoDB for calculating various escrow transaction fees and rates to replace legacy monolithic ASP/.NET and T-SQL-based systems.",
+        "Providing these services via Minimal API in an N-Tier architecture with Amazon SQS (now Kafka) for messaging and",
+        "Developed application for migrating legacy SQL data to DynamoDB (now MongoDB)  with accompanying documentation for stakeholder review.",
+        "Took ownership of documenting legacy systems and created mapping for translating data from legacy SQL database",
+        "Took ownership of Open Telemetry and Kibana implementation for the team's observability efforts.",
+        "Improved performance of the team’s payload management service by reducing calls to AWS S3, resulting in a reduction of latency from 1 second to 1 microsecond on average.",
+        "Mentored and trained two engineers at the SE and SEII level."
+      ],
+      "technologies": []
+    },
+    {
+      "id": "exp_2",
+      "company": "Kaseya",
+      "position": "Senior Software Development Engineer  (C#/.NET, React/Javascript, T-SQL, REST)",
+      "startDate": "March 2017",
+      "endDate": "August 2021",
+      "current": false,
+      "description": [
+        "Full-stack development of new features and bug fixes for a global Remote Monitoring and Management software suite using C#, React, ASP.NET, Classic ASP, Ext.js, and SQL",
+        "Full-stack development and ownership of flagship product’s TOTP 2FA and OIDC SSO implementations",
+        "Ownership and responsibility for the product’s C# and Entity Framework REST API infrastructure and standard practices as well as routine enhancements",
+        "Owner of the Third-party Alliance Partner program software, documentation, and customer relations",
+        "Coordinated department-wide effort to update API documentation while also developing a new process to prevent out-of-date documentation from occurring in the future",
+        "Wrote test automation using Ruby with Cucumber and Gherkin",
+        "Mentored and trained two junior engineers."
+      ],
+      "technologies": []
+    },
+    {
+      "id": "exp_3",
+      "company": "Ainsworth Game Technology",
+      "position": "Game Developer (C++, Proprietary Language, C#/.NET)",
+      "startDate": "April 2016",
+      "endDate": "March 2017",
+      "current": false,
+      "description": [
+        "Developed slot games by assembling art and math assets into a C++ game engine using an Agile scrum",
+        "Controlled game flow and operation with object oriented proprietary language through text files and XML parsing",
+        "Developed desktop applications in C# to use as tools to assist the department in the development process",
+        "Assisted in establishing new department-wide standards for development and game aesthetics",
+        "Developed means of darkening game symbols when not part of a line win while simultaneously highlighting those that"
+      ],
+      "technologies": []
+    },
+    {
+      "id": "exp_4",
+      "company": "Enterprise Data Concepts",
+      "position": "Database Developer (4D, C#/.NET, MySQL, REST)",
+      "startDate": "February 2014",
+      "endDate": "April 2016",
+      "current": false,
+      "description": [
+        "Designed and developed in-house database using 4D development kit to support proprietary PSA application.",
+        "Created quoting and project planning systems to generate itemized quotes, project plans and invoices",
+        "Developed an automated alert system for in-house database for subscription based renewals in quote generation using regular expressions",
+        "Used HTTP requests (REST) to sync client data, get order tracking information, and provide technicians with directions to client locations using Google’s API",
+        "Published internal C#/ASP.NET web page through IIS to display customer ticketing information with color codes based on ticket age and response times to encourage prompt action in resolving tickets."
+      ],
+      "technologies": []
+    }
+  ],
+  "education": [
+    {
+      "id": "edu_1",
+      "institution": "University of Louisiana at Lafayette",
+      "degree": "Bachelor of Science",
+      "field": "Computer Science",
+      "startDate": "December 2015",
+      "honors": [],
+      "coursework": []
+    }
+  ],
+  "skills": [],
+  "projects": [],
+  "lastUpdated": "2025-07-25T02:10:06.774Z"
+}

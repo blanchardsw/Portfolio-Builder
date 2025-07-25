@@ -1,0 +1,745 @@
+"use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ResumeParser = void 0;
+const companyLookup_1 = require("./companyLookup");
+const fs = __importStar(require("fs"));
+const pdf_parse_1 = __importDefault(require("pdf-parse"));
+const mammoth_1 = __importDefault(require("mammoth"));
+class ResumeParser {
+    constructor() {
+        this.companyLookup = new companyLookup_1.CompanyLookupService();
+    }
+    async parseFile(filePath, mimeType) {
+        let text;
+        try {
+            if (mimeType === 'application/pdf') {
+                text = await this.parsePDF(filePath);
+            }
+            else if (mimeType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+                text = await this.parseDocx(filePath);
+            }
+            else if (mimeType === 'text/plain') {
+                text = await this.parseText(filePath);
+            }
+            else {
+                throw new Error('Unsupported file type');
+            }
+            return await this.extractDataFromText(text);
+        }
+        catch (error) {
+            console.error('Error parsing resume:', error);
+            throw new Error('Failed to parse resume file');
+        }
+    }
+    async parsePDF(filePath) {
+        const dataBuffer = fs.readFileSync(filePath);
+        const data = await (0, pdf_parse_1.default)(dataBuffer);
+        return data.text;
+    }
+    async parseDocx(filePath) {
+        const result = await mammoth_1.default.extractRawText({ path: filePath });
+        return result.value;
+    }
+    async parseText(filePath) {
+        return fs.readFileSync(filePath, 'utf-8');
+    }
+    async extractDataFromText(text) {
+        const lines = text.split('\n').map(line => line.trim()).filter(line => line.length > 0);
+        // Extract basic data
+        const workExperience = this.extractWorkExperience(text, lines);
+        // Enrich work experience with company websites
+        const enrichedWorkExperience = await this.enrichWithCompanyWebsites(workExperience);
+        return {
+            personalInfo: this.extractPersonalInfo(text, lines),
+            workExperience: enrichedWorkExperience,
+            education: this.extractEducation(text, lines),
+            skills: this.extractSkills(text, lines),
+            projects: this.extractProjects(text, lines)
+        };
+    }
+    extractPersonalInfo(text, lines) {
+        const personalInfo = {};
+        // Extract name (usually first line or prominent)
+        const nameMatch = lines[0];
+        if (nameMatch && !nameMatch.includes('@') && !nameMatch.includes('http')) {
+            personalInfo.name = nameMatch;
+        }
+        // Extract email
+        const emailRegex = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
+        const emailMatch = text.match(emailRegex);
+        if (emailMatch) {
+            personalInfo.email = emailMatch[0];
+        }
+        // Extract phone
+        const phoneRegex = /(\+?1[-.\s]?)?\(?([0-9]{3})\)?[-.\s]?([0-9]{3})[-.\s]?([0-9]{4})/g;
+        const phoneMatch = text.match(phoneRegex);
+        if (phoneMatch) {
+            personalInfo.phone = phoneMatch[0];
+        }
+        // Extract LinkedIn
+        const linkedinRegex = /linkedin\.com\/in\/[a-zA-Z0-9-]+/g;
+        const linkedinMatch = text.match(linkedinRegex);
+        if (linkedinMatch) {
+            personalInfo.linkedin = `https://${linkedinMatch[0]}`;
+        }
+        // Extract GitHub
+        const githubRegex = /github\.com\/[a-zA-Z0-9-]+/g;
+        const githubMatch = text.match(githubRegex);
+        if (githubMatch) {
+            personalInfo.github = `https://${githubMatch[0]}`;
+        }
+        return personalInfo;
+    }
+    extractWorkExperience(text, lines) {
+        // Try multiple parsing strategies and return the best result
+        const strategies = [
+            () => this.parseWithStructuredFormat(lines),
+            () => this.parseWithFlexibleFormat(lines),
+            () => this.parseWithKeywordExtraction(lines)
+        ];
+        let bestResult = [];
+        let bestScore = 0;
+        for (const strategy of strategies) {
+            try {
+                const result = strategy();
+                const score = this.scoreParsingResult(result);
+                if (score > bestScore) {
+                    bestScore = score;
+                    bestResult = result;
+                }
+            }
+            catch (error) {
+                console.warn('Parsing strategy failed:', error);
+            }
+        }
+        return bestResult;
+    }
+    parseWithStructuredFormat(lines) {
+        // Original structured parsing (your current format)
+        const experiences = [];
+        const experienceKeywords = ['experience', 'employment', 'work history', 'professional experience', 'work', 'career'];
+        let inExperienceSection = false;
+        let currentExperience = null;
+        let expectingDateLine = false;
+        let expectingCompanyLine = false;
+        for (let i = 0; i < lines.length; i++) {
+            const line = lines[i].trim();
+            const lowerLine = line.toLowerCase();
+            if (this.isExperienceSection(line)) {
+                inExperienceSection = true;
+                continue;
+            }
+            if (inExperienceSection && this.isEndOfExperienceSection(line)) {
+                if (currentExperience && this.isValidExperience(currentExperience)) {
+                    experiences.push(currentExperience);
+                }
+                break;
+            }
+            if (inExperienceSection && line.length > 0) {
+                const lineAnalysis = this.analyzeLine(line);
+                if (expectingDateLine && lineAnalysis.isDate > 0.7) {
+                    if (currentExperience) {
+                        this.extractDates(line, currentExperience);
+                        expectingDateLine = false;
+                        expectingCompanyLine = true;
+                    }
+                }
+                else if (expectingCompanyLine && lineAnalysis.isCompany > 0.5) {
+                    if (currentExperience) {
+                        currentExperience.company = line;
+                        expectingCompanyLine = false;
+                    }
+                }
+                else if (!expectingDateLine && !expectingCompanyLine && lineAnalysis.isJobTitle > 0.7) {
+                    if (currentExperience && this.isValidExperience(currentExperience)) {
+                        experiences.push(currentExperience);
+                    }
+                    currentExperience = {
+                        id: `exp_${experiences.length + 1}`,
+                        company: '',
+                        position: '',
+                        description: [],
+                        current: false
+                    };
+                    // Extract dates from the job title line and clean the position
+                    this.extractDates(line, currentExperience);
+                    currentExperience.position = this.cleanPositionFromDates(line);
+                    expectingDateLine = true;
+                    expectingCompanyLine = false;
+                }
+                else if (currentExperience && !expectingDateLine && !expectingCompanyLine) {
+                    this.addDescriptionLine(line, currentExperience);
+                }
+            }
+        }
+        if (currentExperience && this.isValidExperience(currentExperience)) {
+            experiences.push(currentExperience);
+        }
+        return this.cleanupExperiences(experiences);
+    }
+    parseWithFlexibleFormat(lines) {
+        // Flexible parsing for alternative formats
+        const experiences = [];
+        let inExperienceSection = false;
+        let currentExperience = null;
+        for (let i = 0; i < lines.length; i++) {
+            const line = lines[i].trim();
+            if (this.isExperienceSection(line)) {
+                inExperienceSection = true;
+                continue;
+            }
+            if (inExperienceSection && this.isEndOfExperienceSection(line)) {
+                if (currentExperience && this.isValidExperience(currentExperience)) {
+                    experiences.push(currentExperience);
+                }
+                break;
+            }
+            if (inExperienceSection && line.length > 0) {
+                const lineAnalysis = this.analyzeLine(line);
+                // Check for inline format: "Software Engineer at Google (2020-2023)"
+                const inlineMatch = line.match(/^(.+?)\s+at\s+(.+?)\s*\((.+?)\)$/);
+                if (inlineMatch) {
+                    if (currentExperience && this.isValidExperience(currentExperience)) {
+                        experiences.push(currentExperience);
+                    }
+                    currentExperience = {
+                        id: `exp_${experiences.length + 1}`,
+                        position: inlineMatch[1].trim(),
+                        company: inlineMatch[2].trim(),
+                        description: [],
+                        current: false
+                    };
+                    this.extractDates(inlineMatch[3], currentExperience);
+                    continue;
+                }
+                // Try to identify the best field for this line
+                if (lineAnalysis.isJobTitle > Math.max(lineAnalysis.isCompany, lineAnalysis.isDate, lineAnalysis.isDescription)) {
+                    // Start new experience with job title
+                    if (currentExperience && this.isValidExperience(currentExperience)) {
+                        experiences.push(currentExperience);
+                    }
+                    currentExperience = {
+                        id: `exp_${experiences.length + 1}`,
+                        position: '',
+                        company: '',
+                        description: [],
+                        current: false
+                    };
+                    // Extract dates from the job title line and clean the position
+                    this.extractDates(line, currentExperience);
+                    currentExperience.position = this.cleanPositionFromDates(line);
+                }
+                else if (currentExperience) {
+                    if (lineAnalysis.isCompany > Math.max(lineAnalysis.isDate, lineAnalysis.isDescription) && !currentExperience.company) {
+                        currentExperience.company = line;
+                    }
+                    else if (lineAnalysis.isDate > lineAnalysis.isDescription) {
+                        this.extractDates(line, currentExperience);
+                    }
+                    else if (lineAnalysis.isDescription > 0.3) {
+                        this.addDescriptionLine(line, currentExperience);
+                    }
+                }
+            }
+        }
+        if (currentExperience && this.isValidExperience(currentExperience)) {
+            experiences.push(currentExperience);
+        }
+        return this.cleanupExperiences(experiences);
+    }
+    parseWithKeywordExtraction(lines) {
+        // Fallback parsing using keyword extraction
+        const experiences = [];
+        let inExperienceSection = false;
+        let currentBlock = [];
+        for (const line of lines) {
+            if (this.isExperienceSection(line)) {
+                inExperienceSection = true;
+                continue;
+            }
+            if (inExperienceSection && this.isEndOfExperienceSection(line)) {
+                if (currentBlock.length > 0) {
+                    const experience = this.extractExperienceFromBlock(currentBlock, experiences.length + 1);
+                    if (experience && this.isValidExperience(experience)) {
+                        experiences.push(experience);
+                    }
+                }
+                break;
+            }
+            if (inExperienceSection) {
+                if (line.trim().length === 0 && currentBlock.length > 0) {
+                    // Empty line - process current block
+                    const experience = this.extractExperienceFromBlock(currentBlock, experiences.length + 1);
+                    if (experience && this.isValidExperience(experience)) {
+                        experiences.push(experience);
+                    }
+                    currentBlock = [];
+                }
+                else if (line.trim().length > 0) {
+                    currentBlock.push(line.trim());
+                }
+            }
+        }
+        // Process final block
+        if (currentBlock.length > 0) {
+            const experience = this.extractExperienceFromBlock(currentBlock, experiences.length + 1);
+            if (experience && this.isValidExperience(experience)) {
+                experiences.push(experience);
+            }
+        }
+        return this.cleanupExperiences(experiences);
+    }
+    // Helper methods for generic parsing
+    scoreParsingResult(experiences) {
+        let score = 0;
+        for (const exp of experiences) {
+            // Score based on completeness and quality
+            if (exp.position)
+                score += 20;
+            if (exp.company)
+                score += 20;
+            if (exp.startDate)
+                score += 15;
+            if (exp.endDate || exp.current)
+                score += 10;
+            if (exp.description && exp.description.length > 0)
+                score += 20;
+            if (exp.description && exp.description.length > 2)
+                score += 10;
+            // Bonus for realistic content
+            if (exp.position && exp.position.length > 5 && exp.position.length < 100)
+                score += 5;
+            if (exp.company && exp.company.length > 2 && exp.company.length < 50)
+                score += 5;
+        }
+        return score;
+    }
+    isExperienceSection(line) {
+        const lowerLine = line.toLowerCase();
+        const experienceKeywords = [
+            'experience', 'employment', 'work history', 'professional experience',
+            'work experience', 'career history', 'professional background',
+            'employment history', 'work', 'career'
+        ];
+        return experienceKeywords.some(keyword => lowerLine.includes(keyword) &&
+            (lowerLine.includes('experience') || lowerLine.includes('history') || lowerLine.includes('employment')));
+    }
+    isEndOfExperienceSection(line) {
+        const lowerLine = line.toLowerCase();
+        return lowerLine.includes('education') || lowerLine.includes('skills') ||
+            lowerLine.includes('projects') || lowerLine.includes('certifications') ||
+            lowerLine.includes('awards') || lowerLine.includes('publications');
+    }
+    isValidExperience(exp) {
+        return !!(exp.company && exp.position &&
+            (exp.startDate || (exp.description && exp.description.length > 0)));
+    }
+    analyzeLine(line) {
+        const lowerLine = line.toLowerCase();
+        let scores = {
+            isJobTitle: 0,
+            isCompany: 0,
+            isDate: 0,
+            isDescription: 0
+        };
+        // Date detection
+        const datePattern = /\b(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)\s+\d{4}|\d{4}\s*[-–—]\s*\d{4}|present|current/gi;
+        if (datePattern.test(line)) {
+            scores.isDate = 0.9;
+        }
+        // Job title detection
+        const jobTitleIndicators = /\b(engineer|developer|manager|director|analyst|specialist|coordinator|assistant|lead|senior|junior|intern|consultant|architect|designer|programmer|administrator|supervisor|executive|officer)\b/i;
+        const hasTechInParens = /\([^)]*\)/;
+        if (jobTitleIndicators.test(line))
+            scores.isJobTitle += 0.6;
+        if (hasTechInParens.test(line))
+            scores.isJobTitle += 0.4;
+        if (line.length > 10 && line.length < 80)
+            scores.isJobTitle += 0.2;
+        // Company detection
+        const companyIndicators = /\b(inc|llc|corp|corporation|company|ltd|limited|group|systems|solutions|technologies|consulting|services|title|bank|financial|insurance|healthcare|medical|hospital|clinic|university|college|school|institute)\b/i;
+        if (companyIndicators.test(line))
+            scores.isCompany += 0.7;
+        if (line.length > 3 && line.length < 50 && !jobTitleIndicators.test(line))
+            scores.isCompany += 0.3;
+        // Description detection
+        if (line.startsWith('●') || line.startsWith('•') || line.startsWith('*') || line.startsWith('-')) {
+            scores.isDescription = 0.9;
+        }
+        else if (line.length > 30) {
+            scores.isDescription = 0.4;
+        }
+        // Normalize scores to max 1.0
+        Object.keys(scores).forEach(key => {
+            scores[key] = Math.min(1.0, scores[key]);
+        });
+        return scores;
+    }
+    extractDates(line, experience) {
+        // Enhanced date pattern to match various formats including regular hyphens
+        const datePattern = /\b(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)\s+\d{4}\s*[-–—−]\s*(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)\s+\d{4}|\b(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)\s+\d{4}\s*[-–—−]\s*(present|current)|\d{4}\s*[-–—−]\s*\d{4}|\d{4}\s*[-–—−]\s*(present|current)/gi;
+        const matches = line.match(datePattern);
+        if (matches && matches.length > 0) {
+            const dateRange = matches[0];
+            // Split the date range
+            const dateParts = dateRange.split(/\s*[-–—−]\s*/);
+            if (dateParts.length >= 2) {
+                experience.startDate = this.formatDate(dateParts[0].trim());
+                const endPart = dateParts[1].trim().toLowerCase();
+                if (endPart === 'present' || endPart === 'current') {
+                    experience.current = true;
+                    experience.endDate = undefined;
+                }
+                else {
+                    experience.current = false;
+                    experience.endDate = this.formatDate(endPart);
+                }
+            }
+        }
+    }
+    formatDate(dateStr) {
+        // Convert abbreviated months to full names and ensure consistent formatting
+        const monthMap = {
+            'jan': 'January', 'feb': 'February', 'mar': 'March', 'apr': 'April',
+            'may': 'May', 'jun': 'June', 'jul': 'July', 'aug': 'August',
+            'sep': 'September', 'oct': 'October', 'nov': 'November', 'dec': 'December'
+        };
+        // Handle full month names (capitalize first letter)
+        const fullMonthPattern = /^(january|february|march|april|may|june|july|august|september|october|november|december)\s+(\d{4})$/i;
+        const fullMonthMatch = dateStr.match(fullMonthPattern);
+        if (fullMonthMatch) {
+            const month = fullMonthMatch[1].charAt(0).toUpperCase() + fullMonthMatch[1].slice(1).toLowerCase();
+            return `${month} ${fullMonthMatch[2]}`;
+        }
+        // Handle abbreviated month names
+        const abbrevPattern = /^(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)\s+(\d{4})$/i;
+        const abbrevMatch = dateStr.match(abbrevPattern);
+        if (abbrevMatch) {
+            const month = monthMap[abbrevMatch[1].toLowerCase()];
+            return `${month} ${abbrevMatch[2]}`;
+        }
+        // Handle year-only format
+        if (/^\d{4}$/.test(dateStr)) {
+            return dateStr;
+        }
+        // Return as-is if no pattern matches
+        return dateStr;
+    }
+    cleanPositionFromDates(position) {
+        // Remove date patterns from position strings
+        const datePattern = /\s*\b(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)\s+\d{4}\s*[-–—−]\s*(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)\s+\d{4}|\s*\b(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)\s+\d{4}\s*[-–—−]\s*(present|current)|\s*\d{4}\s*[-–—−]\s*\d{4}|\s*\d{4}\s*[-–—−]\s*(present|current)/gi;
+        return position.replace(datePattern, '').trim();
+    }
+    addDescriptionLine(line, experience) {
+        if (line.startsWith('●') || line.startsWith('•') || line.startsWith('*') || line.startsWith('-')) {
+            // Clean up bullet points
+            let cleanLine = line.replace(/^[●•\*\-]\s*/, '').trim();
+            // Filter out empty lines, stray punctuation, or very short content
+            if (cleanLine.length > 10 && !/^[\-\*•●\s]*$/.test(cleanLine)) {
+                experience.description = experience.description || [];
+                experience.description.push(cleanLine);
+            }
+        }
+        else if (line.length > 20) {
+            // This might be a continuation of a previous bullet point or a new description
+            if (experience.description && experience.description.length > 0) {
+                const lastIndex = experience.description.length - 1;
+                // Check if this looks like a continuation (doesn't start with capital letter or common sentence starters)
+                if (!/^[A-Z]/.test(line) || line.startsWith('and ') || line.startsWith('or ') || line.startsWith('with ')) {
+                    experience.description[lastIndex] += ' ' + line;
+                }
+                else {
+                    experience.description.push(line);
+                }
+            }
+            else {
+                experience.description = [line];
+            }
+        }
+    }
+    extractExperienceFromBlock(block, id) {
+        if (block.length === 0)
+            return null;
+        const experience = {
+            id: `exp_${id}`,
+            company: '',
+            position: '',
+            description: [],
+            current: false
+        };
+        // First pass: Extract dates from any line that contains them
+        for (const line of block) {
+            this.extractDates(line, experience);
+        }
+        // Second pass: Analyze each line for content assignment
+        for (const line of block) {
+            const analysis = this.analyzeLine(line);
+            if (analysis.isJobTitle > 0.6 && !experience.position) {
+                // Clean the position of any date information
+                experience.position = this.cleanPositionFromDates(line);
+            }
+            else if (analysis.isCompany > 0.5 && !experience.company) {
+                experience.company = line;
+            }
+            else if (analysis.isDescription > 0.3) {
+                this.addDescriptionLine(line, experience);
+            }
+        }
+        // If we couldn't identify position/company clearly, make best guesses
+        if (!experience.position && !experience.company) {
+            // First non-bullet line is likely position or company
+            const nonBulletLines = block.filter(line => !line.startsWith('●') && !line.startsWith('•') &&
+                !line.startsWith('*') && !line.startsWith('-') &&
+                this.analyzeLine(line).isDate < 0.5);
+            if (nonBulletLines.length >= 1) {
+                const firstAnalysis = this.analyzeLine(nonBulletLines[0]);
+                if (firstAnalysis.isJobTitle >= firstAnalysis.isCompany) {
+                    // Clean position (dates already extracted in first pass)
+                    experience.position = this.cleanPositionFromDates(nonBulletLines[0]);
+                    if (nonBulletLines.length >= 2) {
+                        experience.company = nonBulletLines[1];
+                    }
+                }
+                else {
+                    experience.company = nonBulletLines[0];
+                    if (nonBulletLines.length >= 2) {
+                        // Clean position (dates already extracted in first pass)
+                        experience.position = this.cleanPositionFromDates(nonBulletLines[1]);
+                    }
+                }
+            }
+        }
+        return experience;
+    }
+    cleanupExperiences(experiences) {
+        return experiences
+            .filter(exp => this.isValidExperience(exp))
+            .map(exp => ({
+            ...exp,
+            company: exp.company || 'Unknown Company',
+            position: exp.position || 'Unknown Position',
+            description: exp.description?.filter(desc => desc.length > 10 &&
+                desc.trim().length > 0 &&
+                !/^[\-\*•●\s]*$/.test(desc.trim())) || []
+        }));
+    }
+    extractEducation(text, lines) {
+        const education = [];
+        const educationKeywords = ['education', 'academic', 'university', 'college', 'degree', 'school'];
+        let inEducationSection = false;
+        let currentEducation = null;
+        let educationLines = [];
+        for (let i = 0; i < lines.length; i++) {
+            const line = lines[i].trim();
+            const lowerLine = line.toLowerCase();
+            if (educationKeywords.some(keyword => lowerLine.includes(keyword)) &&
+                (lowerLine.includes('education') || lowerLine.includes('academic'))) {
+                inEducationSection = true;
+                continue;
+            }
+            if (inEducationSection && (lowerLine.includes('experience') || lowerLine.includes('skills') ||
+                lowerLine.includes('projects') || lowerLine.includes('certifications'))) {
+                break;
+            }
+            if (inEducationSection && line.length > 0) {
+                educationLines.push(line);
+            }
+        }
+        // Process all education lines together to avoid multiple entries
+        if (educationLines.length > 0) {
+            currentEducation = {
+                id: 'edu_1',
+                institution: '',
+                degree: '',
+                field: ''
+            };
+            const combinedText = educationLines.join(' ');
+            const datePattern = /\b((?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)\w*\s+)?(?:20\d{2}|19\d{2})\b/gi;
+            const monthYearPattern = /\b(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)\w*\s+(?:20\d{2}|19\d{2})\b/gi;
+            const yearOnlyPattern = /\b(?:20\d{2}|19\d{2})\b/g;
+            // Extract dates from combined text
+            const monthYearMatches = combinedText.match(monthYearPattern);
+            const yearMatches = combinedText.match(yearOnlyPattern);
+            if (monthYearMatches && monthYearMatches.length >= 1) {
+                currentEducation.startDate = monthYearMatches[0];
+                if (monthYearMatches.length >= 2) {
+                    currentEducation.endDate = monthYearMatches[1];
+                }
+            }
+            else if (yearMatches && yearMatches.length >= 1) {
+                currentEducation.startDate = yearMatches[0];
+                if (yearMatches.length >= 2) {
+                    currentEducation.endDate = yearMatches[1];
+                }
+            }
+            // Look for institution (University, College, etc.)
+            for (const line of educationLines) {
+                const lowerLine = line.toLowerCase();
+                if ((lowerLine.includes('university') || lowerLine.includes('college') || lowerLine.includes('institute')) && !currentEducation.institution) {
+                    currentEducation.institution = line.replace(datePattern, '').trim();
+                    break;
+                }
+            }
+            // Look for degree information
+            const degreePattern = /\b(bachelor|master|phd|doctorate|associate|diploma|certificate)\s+(of\s+)?(science|arts|engineering|business|education|fine\s+arts)?\s+(in\s+)?([\w\s]+)?/gi;
+            const simplePattern = /\b(bachelor|master|phd|doctorate|associate|diploma|certificate)/gi;
+            let degreeMatch = combinedText.match(degreePattern);
+            if (!degreeMatch) {
+                degreeMatch = combinedText.match(simplePattern);
+            }
+            if (degreeMatch) {
+                const fullDegree = degreeMatch[0];
+                const degreeType = fullDegree.toLowerCase();
+                if (degreeType.includes('bachelor')) {
+                    if (degreeType.includes('science')) {
+                        currentEducation.degree = 'Bachelor of Science';
+                        // Extract field after "in"
+                        const fieldMatch = fullDegree.match(/in\s+([\w\s]+)/i);
+                        if (fieldMatch) {
+                            currentEducation.field = fieldMatch[1].trim();
+                        }
+                    }
+                    else if (degreeType.includes('arts')) {
+                        currentEducation.degree = 'Bachelor of Arts';
+                        const fieldMatch = fullDegree.match(/in\s+([\w\s]+)/i);
+                        if (fieldMatch) {
+                            currentEducation.field = fieldMatch[1].trim();
+                        }
+                    }
+                    else {
+                        currentEducation.degree = 'Bachelor\'s Degree';
+                    }
+                }
+                else if (degreeType.includes('master')) {
+                    currentEducation.degree = 'Master\'s Degree';
+                }
+                else if (degreeType.includes('phd') || degreeType.includes('doctorate')) {
+                    currentEducation.degree = 'PhD';
+                }
+                else {
+                    currentEducation.degree = fullDegree;
+                }
+            }
+            // If no specific field was found in degree, look for common fields
+            if (!currentEducation.field) {
+                const fieldKeywords = ['computer science', 'engineering', 'business', 'mathematics', 'biology', 'chemistry', 'physics', 'psychology', 'english', 'history', 'art', 'music'];
+                for (const keyword of fieldKeywords) {
+                    if (combinedText.toLowerCase().includes(keyword)) {
+                        currentEducation.field = keyword.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+                        break;
+                    }
+                }
+            }
+            // Clean up institution name (remove dates and degree info)
+            if (currentEducation.institution) {
+                currentEducation.institution = currentEducation.institution
+                    .replace(datePattern, '')
+                    .replace(degreePattern, '')
+                    .replace(/[-–—|]+/g, '') // Remove hyphens and dashes
+                    .replace(/\s+/g, ' ') // Normalize whitespace
+                    .replace(/^[\s-]+|[\s-]+$/g, '') // Remove leading/trailing spaces and hyphens
+                    .trim();
+            }
+            // Ensure we have at least basic information
+            if (currentEducation.institution || currentEducation.degree) {
+                education.push({
+                    ...currentEducation,
+                    institution: currentEducation.institution || 'Unknown Institution',
+                    degree: currentEducation.degree || 'Degree',
+                    field: currentEducation.field || 'Unknown Field'
+                });
+            }
+        }
+        return education;
+    }
+    extractSkills(text, lines) {
+        const skills = [];
+        const skillKeywords = ['skills', 'technologies', 'technical skills', 'programming'];
+        let inSkillsSection = false;
+        for (let i = 0; i < lines.length; i++) {
+            const line = lines[i].toLowerCase();
+            if (skillKeywords.some(keyword => line.includes(keyword))) {
+                inSkillsSection = true;
+                continue;
+            }
+            if (inSkillsSection && (line.includes('experience') || line.includes('education') || line.includes('projects'))) {
+                break;
+            }
+            if (inSkillsSection && lines[i].length > 0) {
+                // Split by common delimiters
+                const skillItems = lines[i].split(/[,;|•·]/).map(s => s.trim()).filter(s => s.length > 0);
+                skillItems.forEach(skill => {
+                    skills.push({
+                        name: skill,
+                        category: 'technical' // Default to technical, can be refined
+                    });
+                });
+            }
+        }
+        return skills;
+    }
+    extractProjects(text, lines) {
+        // Basic project extraction - can be enhanced
+        return [];
+    }
+    /**
+     * Enrich work experience entries with company website information
+     */
+    async enrichWithCompanyWebsites(experiences) {
+        const enrichedExperiences = await Promise.all(experiences.map(async (exp) => {
+            if (exp.company && exp.company.trim().length > 0) {
+                try {
+                    const companyInfo = await this.companyLookup.findCompanyWebsite(exp.company);
+                    return {
+                        ...exp,
+                        website: companyInfo.website
+                    };
+                }
+                catch (error) {
+                    console.log(`Could not find website for ${exp.company}:`, error);
+                    return exp;
+                }
+            }
+            return exp;
+        }));
+        return enrichedExperiences;
+    }
+}
+exports.ResumeParser = ResumeParser;
+//# sourceMappingURL=resumeParser.js.map
