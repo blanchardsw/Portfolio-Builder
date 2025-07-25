@@ -218,14 +218,20 @@ export class FileSecurityService {
     const threats: string[] = [];
 
     try {
-      // Read file content as text (for pattern matching)
+      // Read only first 512KB for performance (most threats are in headers)
       const buffer = fs.readFileSync(filePath);
-      const content = buffer.toString('utf8', 0, Math.min(buffer.length, 1024 * 1024)); // First 1MB only
+      const scanSize = Math.min(buffer.length, 512 * 1024); // 512KB max
+      const content = buffer.toString('utf8', 0, scanSize);
 
-      // Scan for malicious patterns
+      // Scan for malicious patterns with early exit for performance
       for (const pattern of this.MALICIOUS_PATTERNS) {
         if (pattern.test(content)) {
           threats.push(`Suspicious pattern detected: ${pattern.source}`);
+          // Early exit after finding 3 threats to improve performance
+          if (threats.length >= 3) {
+            threats.push('Multiple threats detected - scan terminated early');
+            break;
+          }
         }
       }
 

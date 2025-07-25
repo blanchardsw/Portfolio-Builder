@@ -7,8 +7,7 @@ import fs from 'fs';
 import { portfolioRouter } from './routes/portfolio';
 import { uploadRouter } from './routes/upload';
 import authRouter from './routes/auth';
-import { ResumeParser } from './services/resumeParser';
-import { PortfolioService } from './services/portfolioService';
+import { serviceCache } from './utils/serviceCache';
 
 dotenv.config();
 
@@ -26,8 +25,9 @@ app.use(cors({
   ],
   credentials: true
 }));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// Add size limits for better performance and security
+app.use(express.json({ limit: '10mb' })); // Limit JSON payload size
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Routes
 app.use('/api/portfolio', portfolioRouter);
@@ -84,8 +84,9 @@ const initializeDefaultPortfolio = async () => {
     if (fs.existsSync(resumePath)) {
       console.log('📄 Found default resume file, parsing...');
       
-      const resumeParser = new ResumeParser();
-      const portfolioService = new PortfolioService();
+      // Use cached services for better performance
+      const resumeParser = serviceCache.getResumeParser();
+      const portfolioService = serviceCache.getPortfolioService();
       
       // Read the resume file
       const resumeBuffer = fs.readFileSync(resumePath);

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import './App.css';
 import { Portfolio } from './types/portfolio';
 import { PersonalInfo } from './components/PersonalInfo';
@@ -21,7 +21,7 @@ function App() {
     checkOwnerAccess();
   }, []);
 
-  const checkOwnerAccess = async () => {
+  const checkOwnerAccess = useCallback(async () => {
     const urlParams = new URLSearchParams(window.location.search);
     const key = urlParams.get('key');
     
@@ -39,9 +39,9 @@ function App() {
         setValidatingAccess(false);
       }
     }
-  };
+  }, []);
 
-  const loadPortfolio = async () => {
+  const loadPortfolio = useCallback(async () => {
     try {
       setLoading(true);
       const data = await portfolioApi.getPortfolio();
@@ -62,9 +62,9 @@ function App() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const handleResumeUploaded = (newPortfolio: Portfolio) => {
+  const handleResumeUploaded = useCallback((newPortfolio: Portfolio) => {
     setPortfolio(newPortfolio);
     
     // Update document title with new candidate's name
@@ -76,7 +76,7 @@ function App() {
     
     setShowUpload(false);
     setError(null);
-  };
+  }, []);
 
   if (loading) {
     return (
