@@ -33,14 +33,45 @@ export class ResumeParser {
     }
   }
 
+  async parseBuffer(buffer: Buffer, mimeType: string): Promise<ParsedResumeData> {
+    let text: string;
+    
+    try {
+      if (mimeType === 'application/pdf') {
+        text = await this.parsePDFBuffer(buffer);
+      } else if (mimeType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+        text = await this.parseDocxBuffer(buffer);
+      } else if (mimeType === 'text/plain') {
+        text = buffer.toString('utf-8');
+      } else {
+        throw new Error('Unsupported file type');
+      }
+      
+      return await this.extractDataFromText(text);
+    } catch (error) {
+      console.error('Error parsing resume buffer:', error);
+      throw new Error('Failed to parse resume buffer');
+    }
+  }
+
   private async parsePDF(filePath: string): Promise<string> {
     const dataBuffer = fs.readFileSync(filePath);
     const data = await pdfParse(dataBuffer);
     return data.text;
   }
 
+  private async parsePDFBuffer(buffer: Buffer): Promise<string> {
+    const data = await pdfParse(buffer);
+    return data.text;
+  }
+
   private async parseDocx(filePath: string): Promise<string> {
     const result = await mammoth.extractRawText({ path: filePath });
+    return result.value;
+  }
+
+  private async parseDocxBuffer(buffer: Buffer): Promise<string> {
+    const result = await mammoth.extractRawText({ buffer: buffer });
     return result.value;
   }
 

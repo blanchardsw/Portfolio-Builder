@@ -4,10 +4,12 @@ import path from 'path';
 import fs from 'fs';
 import { ResumeParser } from '../services/resumeParser';
 import { PortfolioService } from '../services/portfolioService';
+import { FileSecurityService } from '../services/fileSecurityService';
 
 const router = express.Router();
 const resumeParser = new ResumeParser();
 const portfolioService = new PortfolioService();
+const fileSecurityService = new FileSecurityService();
 
 // Configure multer for file uploads
 const storage = multer.diskStorage({
@@ -60,6 +62,26 @@ router.post('/resume', upload.single('resume'), async (req, res) => {
     console.log(`📊 File size: ${req.file.size} bytes`);
     console.log(`🔍 MIME type: ${req.file.mimetype}`);
 
+    // 🔒 SECURITY SCAN - Check for malicious content
+    console.log('🔒 Starting security scan...');
+    const securityScan = await fileSecurityService.scanFile(req.file.path, req.file.mimetype);
+    
+    if (!securityScan.isSecure) {
+      // Quarantine the file and reject upload
+      const quarantinePath = fileSecurityService.quarantineFile(req.file.path);
+      console.error(`🚨 SECURITY THREAT DETECTED: ${securityScan.threats.join(', ')}`);
+      
+      return res.status(400).json({
+        error: 'File upload rejected due to security concerns',
+        threats: securityScan.threats,
+        message: 'Please upload a clean resume file in PDF, DOCX, or TXT format'
+      });
+    }
+    
+    console.log('✅ Security scan passed - file is clean');
+    console.log(`🔐 File hash: ${securityScan.fileInfo.hash}`);
+    console.log(`📋 Validated file info:`, securityScan.fileInfo);
+
     // Parse the resume
     const parsedData = await resumeParser.parseFile(req.file.path, req.file.mimetype);
     console.log('✅ Resume parsed successfully');
@@ -67,6 +89,16 @@ router.post('/resume', upload.single('resume'), async (req, res) => {
     // Update portfolio with parsed data
     const portfolio = await portfolioService.updatePortfolioFromResume(parsedData);
     console.log('💾 Portfolio updated successfully');
+
+    // Save as new default resume file (overwrite existing)
+    const defaultResumePath = path.join(__dirname, '../../Stephen_Blanchard-Resume.pdf');
+    try {
+      // Copy uploaded file to default resume location
+      fs.copyFileSync(req.file.path, defaultResumePath);
+      console.log('📄 Default resume file updated successfully');
+    } catch (error) {
+      console.warn('⚠️ Could not update default resume file:', error);
+    }
 
     // Clean up uploaded file
     fs.unlinkSync(req.file.path);

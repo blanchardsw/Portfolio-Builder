@@ -49,7 +49,7 @@ export const PersonalInfo: React.FC<PersonalInfoProps> = ({ personalInfo }) => {
           
           {personalInfo.github && (
             <div className="contact-item">
-              <span className="contact-icon">🐙</span>
+              <span className="contact-icon">⚡</span>
               <a href={personalInfo.github} target="_blank" rel="noopener noreferrer">
                 GitHub
               </a>

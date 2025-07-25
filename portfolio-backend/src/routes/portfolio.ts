@@ -16,7 +16,19 @@ router.get('/', async (req, res) => {
       });
     }
     
-    res.json(portfolio);
+    // Enhance personal info with environment variables
+    const enhancedPortfolio = {
+      ...portfolio,
+      personalInfo: {
+        ...portfolio.personalInfo,
+        // Add GitHub URL from environment variable if not already present
+        github: portfolio.personalInfo.github || process.env.GITHUB_URL,
+        // Add LinkedIn URL from environment variable if not already present
+        linkedin: portfolio.personalInfo.linkedin || process.env.LINKEDIN_URL
+      }
+    };
+    
+    res.json(enhancedPortfolio);
   } catch (error) {
     console.error('Error fetching portfolio:', error);
     res.status(500).json({ error: 'Failed to fetch portfolio data' });

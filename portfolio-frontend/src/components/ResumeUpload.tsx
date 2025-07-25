@@ -13,10 +13,8 @@ export const ResumeUpload: React.FC<ResumeUploadProps> = ({ onUploadSuccess, onC
   const [dragOver, setDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleFileSelect = async (file: File) => {
-    if (!file) return;
-
-    // Validate file type
+  const validateFileSecurely = (file: File): { isValid: boolean; error?: string } => {
+    // 1. Validate file type
     const allowedTypes = [
       'application/pdf',
       'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
@@ -25,13 +23,75 @@ export const ResumeUpload: React.FC<ResumeUploadProps> = ({ onUploadSuccess, onC
     ];
 
     if (!allowedTypes.includes(file.type)) {
-      setError('Please upload a PDF, DOCX, DOC, or TXT file.');
-      return;
+      return { isValid: false, error: 'Please upload a PDF, DOCX, DOC, or TXT file.' };
     }
 
-    // Validate file size (5MB limit)
-    if (file.size > 5 * 1024 * 1024) {
-      setError('File size must be less than 5MB.');
+    // 2. Validate file size (10MB limit, matching backend)
+    if (file.size > 10 * 1024 * 1024) {
+      return { isValid: false, error: 'File size must be less than 10MB.' };
+    }
+
+    // 3. Validate minimum file size
+    if (file.size < 100) {
+      return { isValid: false, error: 'File appears to be empty or corrupted.' };
+    }
+
+    // 4. Validate file extension matches MIME type
+    const allowedExtensions = ['.pdf', '.docx', '.doc', '.txt'];
+    const fileExtension = '.' + file.name.split('.').pop()?.toLowerCase();
+    
+    if (!allowedExtensions.includes(fileExtension)) {
+      return { isValid: false, error: 'File extension not allowed. Use .pdf, .docx, .doc, or .txt files.' };
+    }
+
+    // 5. Check for suspicious file names
+    const suspiciousPatterns = [
+      /\.exe$/i,
+      /\.bat$/i,
+      /\.cmd$/i,
+      /\.scr$/i,
+      /\.com$/i,
+      /\.pif$/i,
+      /\.js$/i,
+      /\.vbs$/i,
+      /\.ps1$/i
+    ];
+
+    for (const pattern of suspiciousPatterns) {
+      if (pattern.test(file.name)) {
+        return { isValid: false, error: 'File type not allowed for security reasons.' };
+      }
+    }
+
+    // 6. Check for double extensions (e.g., resume.pdf.exe)
+    const extensionCount = (file.name.match(/\./g) || []).length;
+    if (extensionCount > 1) {
+      return { isValid: false, error: 'Files with multiple extensions are not allowed for security reasons.' };
+    }
+
+    // 7. Validate MIME type matches extension
+    const mimeExtensionMap: { [key: string]: string[] } = {
+      'application/pdf': ['.pdf'],
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx'],
+      'application/msword': ['.doc'],
+      'text/plain': ['.txt']
+    };
+
+    const expectedExtensions = mimeExtensionMap[file.type];
+    if (expectedExtensions && !expectedExtensions.includes(fileExtension)) {
+      return { isValid: false, error: 'File type and extension do not match. This may indicate a security risk.' };
+    }
+
+    return { isValid: true };
+  };
+
+  const handleFileSelect = async (file: File) => {
+    if (!file) return;
+
+    // 🔒 Frontend security validation
+    const validation = validateFileSecurely(file);
+    if (!validation.isValid) {
+      setError(validation.error || 'File validation failed.');
       return;
     }
 

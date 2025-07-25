@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
 import { Portfolio } from './types/portfolio';
-import { Header } from './components/Header';
 import { PersonalInfo } from './components/PersonalInfo';
 import { WorkExperience } from './components/WorkExperience';
 import { Education } from './components/Education';
@@ -14,10 +13,33 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showUpload, setShowUpload] = useState(false);
+  const [isOwner, setIsOwner] = useState(false);
+  const [validatingAccess, setValidatingAccess] = useState(false);
 
   useEffect(() => {
     loadPortfolio();
+    checkOwnerAccess();
   }, []);
+
+  const checkOwnerAccess = async () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const key = urlParams.get('key');
+    
+    if (key) {
+      setValidatingAccess(true);
+      try {
+        const apiBaseUrl = process.env.REACT_APP_API_URL || 'http://localhost:3001';
+        const response = await fetch(`${apiBaseUrl}/api/auth/check-owner/${key}`);
+        const data = await response.json();
+        setIsOwner(data.isOwner);
+      } catch (error) {
+        console.error('Error validating owner access:', error);
+        setIsOwner(false);
+      } finally {
+        setValidatingAccess(false);
+      }
+    }
+  };
 
   const loadPortfolio = async () => {
     try {
@@ -51,10 +73,6 @@ function App() {
 
   return (
     <div className="App">
-      <Header 
-        portfolio={portfolio} 
-        onUploadClick={() => setShowUpload(true)}
-      />
       
       {showUpload && (
         <ResumeUpload 
@@ -84,6 +102,23 @@ function App() {
           <Skills skills={portfolio.skills} />
         </main>
       ) : null}
+      
+      {/* Owner-only floating action button */}
+      {isOwner && portfolio && (
+        <button 
+          className="floating-upload-btn"
+          onClick={() => setShowUpload(true)}
+          title="Update Resume"
+        >
+          📄
+        </button>
+      )}
+      
+      {validatingAccess && (
+        <div className="validation-message">
+          Validating access...
+        </div>
+      )}
       
       <footer className="app-footer">
         <p>Last updated: {portfolio?.lastUpdated ? new Date(portfolio.lastUpdated).toLocaleDateString() : 'Never'}</p>
