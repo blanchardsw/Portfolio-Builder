@@ -83,14 +83,20 @@ const initializeDefaultPortfolio = async () => {
   }
 };
 
-app.listen(PORT, HOST, async () => {
+app.listen(PORT, HOST, () => {
   console.log(`🚀 Server running on ${HOST}:${PORT}`);
   console.log(`📊 Health check: http://${HOST}:${PORT}/api/health`);
+  console.log('✅ Server ready for health checks');
   
-  // Initialize default portfolio after server starts
-  await initializeDefaultPortfolio();
-  
-  console.log('✅ Server fully initialized and ready');
+  // Initialize default portfolio in background (don't block server startup)
+  setTimeout(async () => {
+    try {
+      await initializeDefaultPortfolio();
+      console.log('✅ Portfolio initialization complete');
+    } catch (error) {
+      console.warn('⚠️ Portfolio initialization failed, but server is still running:', error);
+    }
+  }, 1000);
 });
 
 export default app;
