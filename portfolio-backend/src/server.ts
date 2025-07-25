@@ -13,7 +13,8 @@ import { PortfolioService } from './services/portfolioService';
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = parseInt(process.env.PORT || '3001', 10);
+const HOST = '0.0.0.0'; // Railway requires binding to 0.0.0.0
 
 // Middleware
 app.use(helmet());
@@ -29,9 +30,23 @@ app.use('/api/portfolio', portfolioRouter);
 app.use('/api/upload', uploadRouter);
 app.use('/api/auth', authRouter);
 
-// Health check endpoint
+// Health check endpoint - must respond quickly for Railway
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'OK', timestamp: new Date().toISOString() });
+  res.status(200).json({ 
+    status: 'OK', 
+    timestamp: new Date().toISOString(),
+    service: 'portfolio-backend',
+    port: PORT
+  });
+});
+
+// Root health check (Railway sometimes checks this)
+app.get('/', (req, res) => {
+  res.status(200).json({ 
+    message: 'Portfolio Backend API',
+    status: 'OK',
+    timestamp: new Date().toISOString()
+  });
 });
 
 // Error handling middleware
@@ -68,12 +83,14 @@ const initializeDefaultPortfolio = async () => {
   }
 };
 
-app.listen(PORT, async () => {
-  console.log(`🚀 Server running on port ${PORT}`);
+app.listen(PORT, HOST, async () => {
+  console.log(`🚀 Server running on ${HOST}:${PORT}`);
+  console.log(`📊 Health check: http://${HOST}:${PORT}/api/health`);
   
   // Initialize default portfolio after server starts
   await initializeDefaultPortfolio();
-  console.log(`📊 Health check: http://localhost:${PORT}/api/health`);
+  
+  console.log('✅ Server fully initialized and ready');
 });
 
 export default app;
