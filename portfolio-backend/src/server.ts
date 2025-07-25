@@ -19,7 +19,11 @@ const HOST = '0.0.0.0'; // Railway requires binding to 0.0.0.0
 // Middleware
 app.use(helmet());
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  origin: [
+    'http://localhost:3000',
+    'https://swb-portfolio.netlify.app',
+    ...(process.env.FRONTEND_URL ? [process.env.FRONTEND_URL] : [])
+  ],
   credentials: true
 }));
 app.use(express.json());
