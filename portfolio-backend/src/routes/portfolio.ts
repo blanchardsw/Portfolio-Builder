@@ -1,8 +1,10 @@
 import express from 'express';
 import { PortfolioService } from '../services/portfolioService';
+// import { LinkedInPhotoService } from '../services/linkedinPhotoService';
 
 const router = express.Router();
 const portfolioService = new PortfolioService();
+// const linkedinPhotoService = new LinkedInPhotoService();
 
 // Get complete portfolio data
 router.get('/', async (req, res) => {
@@ -16,7 +18,21 @@ router.get('/', async (req, res) => {
       });
     }
     
-    // Enhance personal info with environment variables
+    // Enhance personal info with environment variables and dynamic LinkedIn photo
+    const linkedinUrl = portfolio.personalInfo.linkedin || process.env.LINKEDIN_URL;
+    let profilePhotoUrl = null;
+    
+    // TODO: Re-enable LinkedIn photo service after fixing startup issues
+    // Dynamically fetch LinkedIn profile photo if LinkedIn URL is available
+    // if (linkedinUrl) {
+    //   try {
+    //     profilePhotoUrl = await linkedinPhotoService.getProfilePhotoUrl(linkedinUrl);
+    //     console.log(`[DEBUG] LinkedIn profile photo result: ${profilePhotoUrl}`);
+    //   } catch (error) {
+    //     console.warn('Failed to fetch LinkedIn profile photo:', error);
+    //   }
+    // }
+    
     const enhancedPortfolio = {
       ...portfolio,
       personalInfo: {
@@ -24,7 +40,9 @@ router.get('/', async (req, res) => {
         // Add GitHub URL from environment variable if not already present
         github: portfolio.personalInfo.github || process.env.GITHUB_URL,
         // Add LinkedIn URL from environment variable if not already present
-        linkedin: portfolio.personalInfo.linkedin || process.env.LINKEDIN_URL
+        linkedin: linkedinUrl,
+        // Add dynamic LinkedIn profile photo
+        profilePhoto: profilePhotoUrl
       }
     };
     

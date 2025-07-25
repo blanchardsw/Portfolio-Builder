@@ -50,10 +50,30 @@ const upload = multer({
   }
 });
 
+// Error handling middleware for multer
+router.use('/resume', (error: any, req: any, res: any, next: any) => {
+  if (error instanceof multer.MulterError) {
+    console.error('❌ Multer error:', error.message);
+    if (error.code === 'LIMIT_FILE_SIZE') {
+      return res.status(400).json({ error: 'File too large. Maximum size is 5MB.' });
+    }
+    return res.status(400).json({ error: `Upload error: ${error.message}` });
+  } else if (error) {
+    console.error('❌ File filter error:', error.message);
+    return res.status(400).json({ error: error.message });
+  }
+  next();
+});
+
 // Upload and parse resume endpoint
 router.post('/resume', upload.single('resume'), async (req, res) => {
   try {
+    console.log('📤 Upload request received');
+    console.log('📋 Request headers:', req.headers);
+    console.log('📁 Multer file info:', req.file ? 'File received' : 'No file');
+    
     if (!req.file) {
+      console.error('❌ No file uploaded - multer did not process any file');
       return res.status(400).json({ error: 'No file uploaded' });
     }
 

@@ -1,12 +1,15 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { Portfolio, ParsedResumeData } from '../types/portfolio';
+import { LinkedInPhotoService } from './linkedinPhotoService';
 
 export class PortfolioService {
   private dataPath = path.join(__dirname, '../../data/portfolio.json');
+  private linkedinPhotoService: LinkedInPhotoService;
 
   constructor() {
     this.ensureDataDirectory();
+    this.linkedinPhotoService = new LinkedInPhotoService();
   }
 
   private ensureDataDirectory(): void {
@@ -33,16 +36,32 @@ export class PortfolioService {
   async updatePortfolioFromResume(parsedData: ParsedResumeData): Promise<Portfolio> {
     const existingPortfolio = await this.getPortfolio();
     
+    // Get LinkedIn URL and fetch profile photo
+    const linkedinUrl = parsedData.personalInfo.linkedin || existingPortfolio?.personalInfo.linkedin || process.env.LINKEDIN_URL;
+    let profilePhoto = existingPortfolio?.personalInfo.profilePhoto;
+    
+    if (linkedinUrl) {
+      try {
+        const photoUrl = await this.linkedinPhotoService.getProfilePhotoUrl(linkedinUrl);
+        if (photoUrl) {
+          profilePhoto = photoUrl;
+        }
+      } catch (error) {
+        console.warn('Failed to fetch LinkedIn profile photo:', error);
+      }
+    }
+    
     const portfolio: Portfolio = {
       personalInfo: {
         name: parsedData.personalInfo.name || existingPortfolio?.personalInfo.name || '',
         email: parsedData.personalInfo.email || existingPortfolio?.personalInfo.email || '',
         phone: parsedData.personalInfo.phone || existingPortfolio?.personalInfo.phone,
         location: parsedData.personalInfo.location || existingPortfolio?.personalInfo.location,
-        linkedin: parsedData.personalInfo.linkedin || existingPortfolio?.personalInfo.linkedin,
-        github: parsedData.personalInfo.github || existingPortfolio?.personalInfo.github,
+        linkedin: linkedinUrl,
+        github: parsedData.personalInfo.github || existingPortfolio?.personalInfo.github || process.env.GITHUB_URL,
         website: parsedData.personalInfo.website || existingPortfolio?.personalInfo.website,
-        summary: parsedData.personalInfo.summary || existingPortfolio?.personalInfo.summary
+        summary: parsedData.personalInfo.summary || existingPortfolio?.personalInfo.summary,
+        profilePhoto: profilePhoto
       },
       workExperience: parsedData.workExperience.map((exp, index) => ({
         id: exp.id || `exp_${index + 1}`,

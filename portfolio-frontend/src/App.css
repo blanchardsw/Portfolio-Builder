@@ -579,6 +579,65 @@ body {
   background: rgba(229, 62, 62, 0.1);
 }
 
+/* LinkedIn Profile Photo Styles */
+.personal-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.profile-photo {
+  flex-shrink: 0;
+}
+
+.profile-image {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.profile-image:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+.personal-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.personal-text .name {
+  margin-bottom: 10px;
+}
+
+.personal-text .summary {
+  margin-top: 10px;
+}
+
+/* Responsive design for profile photo */
+@media (max-width: 768px) {
+  .personal-header {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 15px;
+  }
+  
+  .profile-image {
+    width: 100px;
+    height: 100px;
+  }
+  
+  .personal-text {
+    width: 100%;
+  }
+}
+
 .level-expert .skill-level {
   background: #e53e3e;
   color: white;

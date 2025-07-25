@@ -42,12 +42,11 @@ export class FileSecurityService {
     /onerror\s*=/gi,
     /onclick\s*=/gi,
     
-    // Executable patterns
+    // Executable patterns (more specific to avoid false positives)
     /\.exe\b/gi,
     /\.bat\b/gi,
     /\.cmd\b/gi,
     /\.scr\b/gi,
-    /\.com\b/gi,
     /\.pif\b/gi,
     
     // Macro patterns

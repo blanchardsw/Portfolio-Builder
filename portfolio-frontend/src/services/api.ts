@@ -4,7 +4,7 @@ const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001/api
 
 class PortfolioAPI {
   async getPortfolio(): Promise<Portfolio> {
-    const response = await fetch(`${API_BASE_URL}/portfolio`);
+    const response = await fetch(`${API_BASE_URL}/api/portfolio`);
     if (!response.ok) {
       throw new Error('Failed to fetch portfolio');
     }
@@ -15,7 +15,7 @@ class PortfolioAPI {
     const formData = new FormData();
     formData.append('resume', file);
 
-    const response = await fetch(`${API_BASE_URL}/upload/resume`, {
+    const response = await fetch(`${API_BASE_URL}/api/upload/resume`, {
       method: 'POST',
       body: formData,
     });

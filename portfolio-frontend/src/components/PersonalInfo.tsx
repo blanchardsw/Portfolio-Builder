@@ -10,10 +10,25 @@ export const PersonalInfo: React.FC<PersonalInfoProps> = ({ personalInfo }) => {
     <section className="portfolio-section personal-info">
       <div className="section-content">
         <div className="personal-header">
-          <h1 className="name">{personalInfo.name}</h1>
-          {personalInfo.summary && (
-            <p className="summary">{personalInfo.summary}</p>
+          {personalInfo.profilePhoto && (
+            <div className="profile-photo">
+              <img 
+                src={personalInfo.profilePhoto} 
+                alt={`${personalInfo.name} profile photo`}
+                className="profile-image"
+                onError={(e) => {
+                  // Hide image if it fails to load
+                  (e.target as HTMLImageElement).style.display = 'none';
+                }}
+              />
+            </div>
           )}
+          <div className="personal-text">
+            <h1 className="name">{personalInfo.name}</h1>
+            {personalInfo.summary && (
+              <p className="summary">{personalInfo.summary}</p>
+            )}
+          </div>
         </div>
         
         <div className="contact-info">
