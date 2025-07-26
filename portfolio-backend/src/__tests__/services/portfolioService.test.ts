@@ -10,6 +10,7 @@
  */
 
 import { PortfolioService } from '../../services/portfolioService';
+import { LinkedInPhotoService } from '../../services/linkedinPhotoService';
 import { ILinkedInPhotoService } from '../../interfaces/services';
 import { Portfolio, ParsedResumeData } from '../../types/portfolio';
 import { promises as fsAsync } from 'fs';
