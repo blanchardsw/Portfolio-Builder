@@ -118,9 +118,13 @@ describe('PersonalInfo Component', () => {
       // Act
       render(<PersonalInfo personalInfo={mockPersonalInfo} />);
 
-      // Assert
-      const loadingPlaceholder = screen.getByText('Loading photo...');
-      expect(loadingPlaceholder).toBeInTheDocument();
+      // Assert - Check for loading spinner div instead of text
+      const loadingPlaceholder = screen.getByRole('img', { name: /john doe profile/i });
+      expect(loadingPlaceholder).toHaveStyle('display: none'); // Image should be hidden initially
+      
+      // Check that the loading spinner container exists
+      const profilePhotoContainer = document.querySelector('.profile-photo');
+      expect(profilePhotoContainer).toBeInTheDocument();
     });
 
     it('should hide loading placeholder when image loads', async () => {
@@ -132,9 +136,9 @@ describe('PersonalInfo Component', () => {
       // Simulate image load event
       fireEvent.load(profileImage);
 
-      // Assert
+      // Assert - Check that image becomes visible after loading
       await waitFor(() => {
-        expect(screen.queryByText('Loading photo...')).not.toBeInTheDocument();
+        expect(profileImage).toHaveStyle('display: block');
       });
     });
 
@@ -147,10 +151,11 @@ describe('PersonalInfo Component', () => {
       // Simulate image error event
       fireEvent.error(profileImage);
 
-      // Assert
+      // Assert - Check that image is hidden and profile photo section is not rendered
       await waitFor(() => {
-        expect(screen.getByText('Photo unavailable')).toBeInTheDocument();
-        expect(screen.queryByText('Loading photo...')).not.toBeInTheDocument();
+        // The profile photo section should not be visible when there's an error
+        const profilePhotoContainer = document.querySelector('.profile-photo');
+        expect(profilePhotoContainer).not.toBeInTheDocument();
       });
     });
 

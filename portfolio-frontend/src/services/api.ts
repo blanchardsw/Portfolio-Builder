@@ -174,4 +174,6 @@ class PortfolioAPI {
   }
 }
 
+// Export both the class (for testing) and the singleton instance (for application use)
+export { PortfolioAPI };
 export const portfolioApi = new PortfolioAPI();
