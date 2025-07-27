@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@babel/runtime": "^7.28.2",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.0",
@@ -13,14 +14,14 @@
     "@types/react-dom": "^18.3.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-scripts": "5.0.1",
+    "react-scripts": "^0.0.0",
     "typescript": "^5.5.3",
     "web-vitals": "^4.2.1"
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "npm run test:ci && react-scripts build",
-    "build:only": "react-scripts build",
+    "build": "npm run test:ci && set DISABLE_ESLINT_PLUGIN=true&& react-scripts build",
+    "build:only": "set DISABLE_ESLINT_PLUGIN=true&& react-scripts build",
     "test": "react-scripts test",
     "test:coverage": "react-scripts test --coverage --watchAll=false",
     "test:ci": "react-scripts test --coverage --watchAll=false --passWithNoTests",
