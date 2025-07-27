@@ -1,0 +1,28 @@
+John Doe
+Software Engineer
+
+Contact Information:
+Email: john.doe@example.com
+Phone: (555) 123-4567
+LinkedIn: linkedin.com/in/johndoe
+
+Experience:
+Senior Software Engineer at Tech Corp (2020-2023)
+- Developed web applications using React and Node.js
+- Led a team of 5 developers
+- Improved system performance by 40%
+
+Software Engineer at StartupXYZ (2018-2020)
+- Built REST APIs using Express.js
+- Implemented database solutions with PostgreSQL
+- Collaborated with cross-functional teams
+
+Education:
+Bachelor of Science in Computer Science
+University of Technology (2014-2018)
+
+Skills:
+- JavaScript, TypeScript, Python
+- React, Node.js, Express.js
+- PostgreSQL, MongoDB
+- AWS, Docker, Kubernetes

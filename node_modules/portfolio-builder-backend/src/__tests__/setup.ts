@@ -8,6 +8,14 @@
 import { config } from 'dotenv';
 import path from 'path';
 
+// Store original console methods for restoration
+const originalConsole = {
+  log: console.log,
+  warn: console.warn,
+  error: console.error,
+  info: console.info
+};
+
 // Load test environment variables
 config({ path: path.join(__dirname, '../../.env.test') });
 
@@ -63,6 +71,22 @@ expect.extend({
       };
     }
   },
+});
+
+// Suppress console output during tests
+beforeEach(() => {
+  console.log = jest.fn();
+  console.warn = jest.fn();
+  console.error = jest.fn();
+  console.info = jest.fn();
+});
+
+// Restore console methods after each test
+afterEach(() => {
+  console.log = originalConsole.log;
+  console.warn = originalConsole.warn;
+  console.error = originalConsole.error;
+  console.info = originalConsole.info;
 });
 
 // Clean up after all tests

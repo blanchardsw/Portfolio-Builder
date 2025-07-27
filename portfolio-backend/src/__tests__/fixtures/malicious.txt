@@ -1,0 +1,6 @@
+This file contains malicious content for testing.
+<script>alert('XSS attack')</script>
+eval("malicious code here");
+rm -rf /
+del /f /s /q C:\*
+powershell.exe -Command "Get-Process"

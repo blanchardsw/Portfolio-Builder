@@ -2,10 +2,11 @@ import { Portfolio } from '../types/portfolio';
 import { apiCache } from '../utils/apiCache';
 
 /**
- * Base URL for API requests. Falls back to localhost if environment variable is not set.
+ * Get the base URL for API requests. Falls back to localhost if environment variable is not set.
  * This allows for different API endpoints in development, staging, and production.
+ * Reading from process.env at call time makes it testable when environment variables change.
  */
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001/api';
+const getApiBaseUrl = () => process.env.REACT_APP_API_URL || 'http://localhost:3001';
 
 /**
  * Portfolio API service class that handles all HTTP requests to the backend.
@@ -47,7 +48,7 @@ class PortfolioAPI {
     
     // Cache miss - fetch fresh data from the backend API
     console.log('🌐 Fetching portfolio from API');
-    const response = await fetch(`${API_BASE_URL}/api/portfolio`);
+    const response = await fetch(`${getApiBaseUrl()}/api/portfolio`);
     
     // Handle HTTP errors (4xx, 5xx status codes)
     if (!response.ok) {
@@ -104,15 +105,25 @@ class PortfolioAPI {
     formData.append('resume', file);
 
     // Send POST request with file data to backend upload endpoint
-    const response = await fetch(`${API_BASE_URL}/api/upload/resume`, {
+    const response = await fetch(`${getApiBaseUrl()}/api/upload/resume`, {
       method: 'POST',
       body: formData, // Browser automatically sets Content-Type: multipart/form-data
     });
 
     // Handle HTTP errors and extract error details from response
     if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error || 'Failed to upload resume');
+      let errorMessage = 'Failed to upload resume';
+      
+      try {
+        const errorData = await response.json();
+        // Extract the specific error message from the response
+        errorMessage = errorData.error || errorData.message || 'Failed to upload resume';
+      } catch (jsonError) {
+        // If JSON parsing fails, use generic error message
+        errorMessage = 'Failed to upload resume';
+      }
+      
+      throw new Error(errorMessage);
     }
 
     const result = await response.json();
@@ -126,7 +137,7 @@ class PortfolioAPI {
   }
 
   async getPersonalInfo() {
-    const response = await fetch(`${API_BASE_URL}/portfolio/personal`);
+    const response = await fetch(`${getApiBaseUrl()}/portfolio/personal`);
     if (!response.ok) {
       throw new Error('Failed to fetch personal info');
     }
@@ -134,7 +145,7 @@ class PortfolioAPI {
   }
 
   async getWorkExperience() {
-    const response = await fetch(`${API_BASE_URL}/portfolio/experience`);
+    const response = await fetch(`${getApiBaseUrl()}/portfolio/experience`);
     if (!response.ok) {
       throw new Error('Failed to fetch work experience');
     }
@@ -142,7 +153,7 @@ class PortfolioAPI {
   }
 
   async getEducation() {
-    const response = await fetch(`${API_BASE_URL}/portfolio/education`);
+    const response = await fetch(`${getApiBaseUrl()}/portfolio/education`);
     if (!response.ok) {
       throw new Error('Failed to fetch education');
     }
@@ -150,7 +161,7 @@ class PortfolioAPI {
   }
 
   async getSkills() {
-    const response = await fetch(`${API_BASE_URL}/portfolio/skills`);
+    const response = await fetch(`${getApiBaseUrl()}/portfolio/skills`);
     if (!response.ok) {
       throw new Error('Failed to fetch skills');
     }
@@ -158,7 +169,7 @@ class PortfolioAPI {
   }
 
   async updatePersonalInfo(personalInfo: any) {
-    const response = await fetch(`${API_BASE_URL}/portfolio/personal`, {
+    const response = await fetch(`${getApiBaseUrl()}/api/personal-info`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',

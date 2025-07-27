@@ -44,32 +44,43 @@ describe('PortfolioAPI', () => {
     },
     workExperience: [
       {
+        id: 'work-1',
         company: 'Tech Corp',
         position: 'Senior Developer',
         startDate: '2020-01',
         endDate: '2023-12',
-        description: 'Led development of web applications',
+        current: false,
+        description: ['Led development of web applications'],
         location: 'New York, NY'
       }
     ],
     education: [
       {
+        id: 'edu-1',
         institution: 'University of Technology',
         degree: 'Bachelor of Computer Science',
+        field: 'Computer Science',
         startDate: '2016-09',
-        endDate: '2020-05',
-        location: 'Boston, MA'
+        endDate: '2020-05'
       }
     ],
-    skills: ['JavaScript', 'TypeScript', 'React', 'Node.js', 'Python'],
+    skills: [
+      { name: 'JavaScript', category: 'technical' as const, level: 'advanced' as const },
+      { name: 'TypeScript', category: 'technical' as const, level: 'advanced' as const },
+      { name: 'React', category: 'technical' as const, level: 'expert' as const },
+      { name: 'Node.js', category: 'technical' as const, level: 'intermediate' as const },
+      { name: 'Python', category: 'technical' as const, level: 'intermediate' as const }
+    ],
     projects: [
       {
+        id: 'proj-1',
         name: 'Portfolio Builder',
         description: 'A web application for creating professional portfolios',
         technologies: ['React', 'TypeScript', 'Node.js', 'Express'],
         url: 'https://github.com/johndoe/portfolio-builder'
       }
-    ]
+    ],
+    lastUpdated: '2024-01-01T00:00:00Z'
   };
 
   beforeEach(() => {
@@ -151,6 +162,9 @@ describe('PortfolioAPI', () => {
       const originalEnv = process.env.REACT_APP_API_URL;
       process.env.REACT_APP_API_URL = 'https://api.example.com';
       
+      // Create a fresh instance after setting the environment variable
+      const freshPortfolioAPI = new PortfolioAPI();
+      
       mockApiCache.get.mockReturnValue(null);
       mockFetch.mockResolvedValue({
         ok: true,
@@ -158,7 +172,7 @@ describe('PortfolioAPI', () => {
       } as Response);
 
       // Act
-      await portfolioAPI.getPortfolio();
+      await freshPortfolioAPI.getPortfolio();
 
       // Assert
       expect(mockFetch).toHaveBeenCalledWith('https://api.example.com/api/portfolio');
