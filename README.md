@@ -69,8 +69,9 @@ npm run dev
 ```
 
 🧪 Testing
-
+```
 npm test
+```
 
 🌍 Deployment
 
