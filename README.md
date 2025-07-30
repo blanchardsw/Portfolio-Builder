@@ -72,7 +72,3 @@ npm run dev
 ```
 npm test
 ```
-
-🌍 Deployment
-
-This project is configured for deployment via Netlify. See DEPLOYMENT_GUIDE.md for step-by-step instructions.
