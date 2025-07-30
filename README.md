@@ -14,6 +14,9 @@ A full-stack application designed to help developers generate and showcase perso
 
 ---
 
+## 🗂️ Project Structure
+
+```text
 📁 Portfolio-Builder/
 ├── 📦 portfolio-frontend/             — React-based frontend (TypeScript, HTML, CSS)
 ├── 🧩 portfolio-backend/              — Node.js backend API
@@ -25,6 +28,7 @@ A full-stack application designed to help developers generate and showcase perso
 ├── 🧠 full-extract.js                 — Full resume parser
 ├── 📚 generic-parser-design.md        — Parser architecture notes
 └── 🚀 DEPLOYMENT_GUIDE.md             — Deployment instructions
+```
 
 
 ---
