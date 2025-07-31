@@ -59,7 +59,7 @@ const mockServiceCache = {
   })
 };
 
-jest.doMock('../utils/serviceCache', () => ({
+jest.doMock('../../utils/serviceCache', () => ({
   serviceCache: mockServiceCache
 }));
 
