@@ -2,9 +2,8 @@ import * as fs from 'fs';
 import { promises as fsAsync } from 'fs';
 import * as path from 'path';
 import { Portfolio, ParsedResumeData } from '../types/portfolio';
-import { IPortfolioService, ILinkedInPhotoService } from '../interfaces/services';
+import { IPortfolioService } from '../interfaces/services';
 import { FileProcessingError, NotFoundError, InternalServerError } from '../errors/customErrors';
-import { LinkedInPhotoService } from './linkedinPhotoService';
 
 /**
  * Portfolio service implementing the IPortfolioService interface.
@@ -33,8 +32,6 @@ import { LinkedInPhotoService } from './linkedinPhotoService';
 export class PortfolioService implements IPortfolioService {
   /** Absolute path to the portfolio JSON data file */
   private readonly dataPath: string;
-  /** LinkedIn photo service for fetching profile images */
-  private readonly linkedInPhotoService: ILinkedInPhotoService;
 
   /**
    * Creates a new PortfolioService instance with dependency injection.
@@ -45,7 +42,6 @@ export class PortfolioService implements IPortfolioService {
    * - Swappable LinkedIn photo service implementations
    * 
    * @param {string} [dataPath] - Path to portfolio JSON file (defaults to ../../data/portfolio.json)
-   * @param {ILinkedInPhotoService} [linkedInPhotoService] - Service for LinkedIn photo fetching
    * 
    * @example
    * ```typescript
@@ -55,25 +51,18 @@ export class PortfolioService implements IPortfolioService {
    * // Custom data path for testing
    * const testService = new PortfolioService('/tmp/test-portfolio.json');
    * 
-   * // With mock LinkedIn service for unit tests
-   * const mockLinkedIn = new MockLinkedInPhotoService();
-   * const testService = new PortfolioService(undefined, mockLinkedIn);
+   * // Custom data path for testing
+   * const testService = new PortfolioService('/tmp/test-portfolio.json');
    * ```
    */
   constructor(
-    dataPath: string = path.join(__dirname, '../../data/portfolio.json'),
-    linkedInPhotoService: ILinkedInPhotoService = new LinkedInPhotoService()
+    dataPath: string = path.join(__dirname, '../../data/portfolio.json')
   ) {
     this.dataPath = dataPath;
-    this.linkedInPhotoService = linkedInPhotoService;
     this.ensureDataDirectory();
   }
 
-  private createDefaultLinkedInService(): ILinkedInPhotoService {
-    // Import here to avoid circular dependency
-    const { LinkedInPhotoService } = require('./linkedinPhotoService');
-    return new LinkedInPhotoService();
-  }
+
 
   private ensureDataDirectory(): void {
     try {
@@ -177,18 +166,8 @@ export class PortfolioService implements IPortfolioService {
     
     // Get LinkedIn URL and fetch profile photo
     const linkedinUrl = parsedData.personalInfo.linkedin || existingPortfolio?.personalInfo.linkedin || process.env.LINKEDIN_URL;
-    let profilePhoto = existingPortfolio?.personalInfo.profilePhoto;
-    
-    if (linkedinUrl) {
-      try {
-        const photoUrl = await this.linkedInPhotoService.getProfilePhotoUrl(linkedinUrl);
-        if (photoUrl) {
-          profilePhoto = photoUrl;
-        }
-      } catch (error) {
-        console.warn('Failed to fetch LinkedIn profile photo:', error);
-      }
-    }
+    // Use profile photo from environment variable or existing portfolio
+    let profilePhoto = process.env.LINKEDIN_PHOTO_URL || existingPortfolio?.personalInfo.profilePhoto;
     
     const portfolio: Portfolio = {
       personalInfo: {

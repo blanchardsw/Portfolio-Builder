@@ -82,7 +82,7 @@ const PersonalInfo: React.FC<PersonalInfoProps> = memo(({ personalInfo }) => {
                 loading="lazy"
                 onLoad={handleImageLoad}
                 onError={handleImageError}
-                style={{ display: imageLoaded ? 'block' : 'none' }}
+                style={{ opacity: imageLoaded ? 1 : 0 }}
               />
             </div>
           )}

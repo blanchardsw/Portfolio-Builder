@@ -20,9 +20,7 @@ export interface IFileSecurityService {
   quarantineFile(filePath: string): string;
 }
 
-export interface ILinkedInPhotoService {
-  getProfilePhotoUrl(linkedinUrl: string): Promise<string | null>;
-}
+
 
 export interface SecurityScanResult {
   isSecure: boolean;

@@ -7,25 +7,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-body.light {
-  --bg-color: #f5f7fa;
-  --text-color: #1a1a1a;
-  --icon-color: #555;
-  --icon-hover: #000;
-  background-color: var(--bg-color);
-  color: var(--text-color);
-  transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-body.dark {
-  --bg-color: #121212;
-  --text-color: #030303;
-  --icon-color: #bbb;
-  --icon-hover: #fff;
-  background-color: var(--bg-color);
-  color: var(--text-color);
-  transition: background-color 0.3s ease, color 0.3s ease;
-}
+/* Remove conflicting theme styles - App.css handles theming with data-theme attributes */
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',

@@ -5,7 +5,7 @@ import { ThemeContext } from './context/ThemeContext';
 describe('App Component', () => {
   test('renders without crashing', () => {
     const mockThemeContext = {
-      theme: 'light',
+      theme: 'light' as const,
       toggleTheme: jest.fn(),
     };
 

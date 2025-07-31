@@ -1,4 +1,36 @@
 /* Modern Portfolio Styles */
+:root {
+  /* Light theme variables - Modern colorful design */
+  --bg-primary: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+  --bg-secondary: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.98) 100%);
+  --text-primary: #1a202c;
+  --text-secondary: #2d3748;
+  --text-accent: #667eea;
+  --border-color: rgba(102, 126, 234, 0.2);
+  --shadow-color: rgba(102, 126, 234, 0.15);
+  --card-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.98) 100%);
+  --icon-color: #4a5568;
+  --icon-hover: #2d3748;
+  --contact-bg: linear-gradient(135deg, rgba(102, 126, 234, 0.08) 0%, rgba(240, 147, 251, 0.08) 100%);
+  --contact-hover: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(240, 147, 251, 0.15) 100%);
+}
+
+[data-theme="dark"] {
+  /* Dark theme variables - Modern professional design */
+  --bg-primary: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+  --bg-secondary: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.98) 100%);
+  --text-primary: #f8fafc;
+  --text-secondary: #e2e8f0;
+  --text-accent: #38bdf8;
+  --border-color: rgba(56, 189, 248, 0.2);
+  --shadow-color: rgba(0, 0, 0, 0.4);
+  --card-bg: linear-gradient(135deg, rgba(30, 41, 59, 0.95) 0%, rgba(51, 65, 85, 0.98) 100%);
+  --icon-color: #e2e8f0;
+  --icon-hover: #f8fafc;
+  --contact-bg: linear-gradient(135deg, rgba(56, 189, 248, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%);
+  --contact-hover: linear-gradient(135deg, rgba(56, 189, 248, 0.2) 0%, rgba(59, 130, 246, 0.2) 100%);
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -11,9 +43,10 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--bg-primary);
   min-height: 100vh;
-  color: #333;
+  color: var(--text-primary);
+  transition: all 0.3s ease;
 }
 
 .App {
@@ -49,13 +82,15 @@ body {
 
 /* Header */
 .portfolio-header {
-  background: rgba(255, 255, 255, 0.95);
+  background: var(--bg-secondary);
   backdrop-filter: blur(10px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  border-bottom: 1px solid var(--border-color);
   padding: 20px 0;
   position: sticky;
   top: 0;
   z-index: 100;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 20px var(--shadow-color);
 }
 
 .header-content {
@@ -70,12 +105,12 @@ body {
 .portfolio-title {
   font-size: 2rem;
   font-weight: 700;
-  color: #2d3748;
+  color: var(--text-primary);
   margin-bottom: 5px;
 }
 
 .portfolio-subtitle {
-  color: #4a5568;
+  color: var(--text-secondary);
   font-size: 1.1rem;
   max-width: 600px;
 }
@@ -153,19 +188,20 @@ body {
 
 /* Portfolio Sections */
 .portfolio-section {
-  background: rgba(255, 255, 255, 0.95);
+  background: var(--card-bg);
   backdrop-filter: blur(10px);
   border-radius: 16px;
   padding: 40px;
   margin-bottom: 30px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px var(--shadow-color);
+  border: 1px solid var(--border-color);
+  transition: all 0.3s ease;
 }
 
 .section-title {
   font-size: 1.8rem;
   font-weight: 700;
-  color: #2d3748;
+  color: var(--text-primary);
   margin-bottom: 30px;
   display: flex;
   align-items: center;
@@ -176,13 +212,13 @@ body {
 .personal-header .name {
   font-size: 2.5rem;
   font-weight: 700;
-  color: #2d3748;
+  color: var(--text-primary);
   margin-bottom: 15px;
 }
 
 .personal-header .summary {
   font-size: 1.2rem;
-  color: #4a5568;
+  color: var(--text-secondary);
   line-height: 1.6;
   margin-bottom: 30px;
 }
@@ -198,14 +234,16 @@ body {
   align-items: center;
   gap: 10px;
   padding: 12px;
-  background: rgba(102, 126, 234, 0.05);
+  background: var(--contact-bg);
   border-radius: 8px;
   transition: all 0.3s ease;
+  border: 1px solid var(--border-color);
 }
 
 .contact-item:hover {
-  background: rgba(102, 126, 234, 0.1);
+  background: var(--contact-hover);
   transform: translateY(-2px);
+  box-shadow: 0 4px 15px var(--shadow-color);
 }
 
 .contact-icon {
@@ -213,7 +251,7 @@ body {
 }
 
 .contact-item a {
-  color: #667eea;
+  color: var(--text-accent);
   text-decoration: none;
   font-weight: 500;
 }
@@ -224,7 +262,7 @@ body {
 
 /* Work Experience */
 .experience-item {
-  border-left: 4px solid #667eea;
+  border-left: 4px solid var(--text-accent);
   padding-left: 25px;
   margin-bottom: 40px;
   position: relative;
@@ -237,7 +275,7 @@ body {
   top: 0;
   width: 12px;
   height: 12px;
-  background: #667eea;
+  background: var(--text-accent);
   border-radius: 50%;
 }
 
@@ -251,7 +289,7 @@ body {
 }
 
 .company-link {
-  color: #667eea;
+  color: var(--text-accent);
   text-decoration: none;
   font-weight: 600;
   transition: all 0.3s ease;
@@ -259,9 +297,10 @@ body {
 }
 
 .company-link:hover {
-  color: #5a67d8;
+  color: var(--text-accent);
   text-decoration: underline;
   transform: translateY(-1px);
+  opacity: 0.8;
 }
 
 .company-link::after {
@@ -274,19 +313,19 @@ body {
 .position {
   font-size: 1.3rem;
   font-weight: 700;
-  color: #2d3748;
+  color: var(--text-primary);
   margin-bottom: 5px;
 }
 
 .company {
   font-size: 1.1rem;
-  color: #667eea;
+  color: var(--text-accent);
   font-weight: 600;
 }
 
 .experience-meta {
   text-align: right;
-  color: #4a5568;
+  color: var(--text-secondary);
   font-size: 0.9rem;
 }
 
@@ -316,8 +355,92 @@ body {
   content: '▸';
   position: absolute;
   left: 0;
-  color: #667eea;
+  color: var(--text-accent);
   font-weight: bold;
+}
+
+/* Education Styles - Match Work Experience */
+.education-item {
+  border-left: 4px solid var(--text-accent);
+  padding-left: 25px;
+  margin-bottom: 40px;
+  position: relative;
+}
+
+.education-item::before {
+  content: '';
+  position: absolute;
+  left: -8px;
+  top: 0;
+  width: 12px;
+  height: 12px;
+  background: var(--text-accent);
+  border-radius: 50%;
+}
+
+.education-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 15px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.degree {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--text-color) !important;
+  margin-bottom: 5px;
+}
+
+.field {
+  font-size: 1.1rem;
+  color: var(--text-color) !important;
+  font-weight: 500;
+  margin-bottom: 5px;
+  opacity: 0.8;
+}
+
+.institution {
+  font-size: 1.1rem;
+  color: var(--accent-color) !important;
+  font-weight: 600;
+}
+
+.institution-link {
+  color: var(--text-accent);
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.institution-link:hover {
+  color: var(--text-accent);
+  text-decoration: underline;
+  transform: translateY(-1px);
+  opacity: 0.8;
+}
+
+.institution-link::after {
+  content: ' 🔗';
+  font-size: 0.8em;
+  opacity: 0.7;
+  margin-left: 4px;
+}
+
+.education-meta {
+  text-align: right;
+  color: var(--text-color) !important;
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+
+.education-meta .date-range {
+  display: block;
+  font-weight: 600;
+  color: var(--text-color) !important;
 }
 
 .experience-technologies {
@@ -599,6 +722,25 @@ body {
   border: 4px solid rgba(255, 255, 255, 0.2);
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
+}
+
+.profile-image.loading {
+  opacity: 0;
+}
+
+.profile-image.loaded {
+  opacity: 1;
+}
+
+.profile-image-placeholder {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.1);
+  border: 4px solid rgba(255, 255, 255, 0.2);
 }
 
 .profile-image:hover {

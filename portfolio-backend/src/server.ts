@@ -11,7 +11,7 @@ import { serviceCache } from './utils/serviceCache';
 
 dotenv.config();
 
-const app = express();
+const app: express.Application = express();
 const PORT = parseInt(process.env.PORT || '3001', 10);
 const HOST = '0.0.0.0'; // Railway requires binding to 0.0.0.0
 
@@ -78,7 +78,7 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
 // Initialize default portfolio on startup
 const initializeDefaultPortfolio = async () => {
   try {
-    const resumePath = path.join(__dirname, '../../Stephen_Blanchard-Resume.pdf');
+    const resumePath = path.join(__dirname, '../Stephen_Blanchard-Resume.pdf');
     
     // Check if resume file exists
     if (fs.existsSync(resumePath)) {

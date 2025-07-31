@@ -1,12 +1,51 @@
 .theme-toggle {
-  background: transparent;
-  border: none;
-  font-size: 1.5rem;
+  position: relative;
+  width: 60px;
+  height: 30px;
+  background: var(--contact-bg);
+  border: 2px solid var(--border-color);
+  border-radius: 25px;
   cursor: pointer;
-  color: var(--icon-color);
-  transition: color 0.3s ease;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 2px 4px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 2px 10px var(--shadow-color);
 }
 
 .theme-toggle:hover {
-  color: var(--icon-hover);
+  background: var(--contact-hover);
+  border-color: var(--text-accent);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px var(--shadow-color);
+}
+
+.theme-toggle::before {
+  content: '';
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  background: linear-gradient(135deg, #667eea 0%, #f093fb 100%);
+  border-radius: 50%;
+  transition: all 0.3s ease;
+  left: 2px;
+  box-shadow: 0 2px 8px var(--shadow-color);
+}
+
+.theme-toggle[data-theme="dark"]::before {
+  transform: translateX(30px);
+  background: linear-gradient(135deg, #38bdf8 0%, #3b82f6 100%);
+}
+
+.theme-toggle .theme-icon {
+  font-size: 0.9rem;
+  z-index: 1;
+  opacity: 0.7;
+  transition: opacity 0.3s ease;
+}
+
+.theme-toggle:hover .theme-icon {
+  opacity: 1;
 }

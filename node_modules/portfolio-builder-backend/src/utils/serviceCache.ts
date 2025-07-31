@@ -6,7 +6,7 @@
 import { ResumeParser } from '../services/resumeParser';
 import { PortfolioService } from '../services/portfolioService';
 import { FileSecurityService } from '../services/fileSecurityService';
-import { LinkedInPhotoService } from '../services/linkedinPhotoService';
+
 
 class ServiceCache {
   private static instance: ServiceCache;
@@ -53,12 +53,7 @@ class ServiceCache {
     return this.getService('fileSecurityService', () => new FileSecurityService());
   }
 
-  /**
-   * Get cached LinkedInPhotoService instance
-   */
-  getLinkedInPhotoService(): LinkedInPhotoService {
-    return this.getService('linkedInPhotoService', () => new LinkedInPhotoService());
-  }
+
 
   /**
    * Clear all cached services (useful for testing or memory management)

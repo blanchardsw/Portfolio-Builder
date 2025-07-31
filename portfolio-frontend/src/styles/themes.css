@@ -1,13 +1,22 @@
-/* src/styles/themes.css */
+/* src/styles/themes.css - Modern Portfolio Themes */
 
 :root {
-  --bg-color: #ffffff;
-  --text-color: #000000;
-  --accent-color: #0077cc;
+  /* Light theme - Modern colorful design */
+  --bg-color: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+  --text-color: #1a202c;
+  --accent-color: #667eea;
 }
 
 [data-theme='dark'] {
-  --bg-color: #121212;
-  --text-color: #f5f5f5;
-  --accent-color: #66ccff;
+  /* Dark theme - Modern professional design */
+  --bg-color: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+  --text-color: #f8fafc;
+  --accent-color: #38bdf8;
+}
+
+/* Apply theme to body */
+body {
+  background: var(--bg-color) !important;
+  color: var(--text-color) !important;
+  transition: all 0.3s ease;
 }
