@@ -1,14 +1,18 @@
-import { useContext } from "react";
-import { ThemeContext } from "../ThemeContext";
-import { FaSun, FaMoon } from "react-icons/fa";
-import "./ThemeToggle.css";
+import React, { useContext } from 'react';
+import { ThemeContext } from '../context/ThemeContext';
 
 const ThemeToggle = () => {
-  const { theme, toggleTheme } = useContext(ThemeContext);
+  const context = useContext(ThemeContext);
+
+  if (!context) {
+    throw new Error('ThemeToggle must be used within a ThemeContext.Provider');
+  }
+
+  const { theme, toggleTheme } = context;
 
   return (
     <button className="theme-toggle" onClick={toggleTheme}>
-      {theme === "light" ? <FaMoon /> : <FaSun />}
+      Switch to {theme === 'light' ? 'dark' : 'light'} mode
     </button>
   );
 };
