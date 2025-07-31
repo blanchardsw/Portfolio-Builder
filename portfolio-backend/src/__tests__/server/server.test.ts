@@ -8,25 +8,25 @@ import express from 'express';
 import cors from 'cors';
 
 // Mock all route modules and services
-jest.mock('../routes/auth', () => {
+jest.mock('../../routes/auth', () => {
   const router = express.Router();
   router.post('/validate-owner', (req, res) => res.json({ isOwner: true }));
   return router;
 });
 
-jest.mock('../routes/portfolio', () => {
+jest.mock('../../routes/portfolio', () => {
   const router = express.Router();
   router.get('/', (req, res) => res.json({ test: 'portfolio' }));
   return router;
 });
 
-jest.mock('../routes/upload', () => {
+jest.mock('../../routes/upload', () => {
   const router = express.Router();
   router.post('/resume', (req, res) => res.json({ message: 'uploaded' }));
   return { uploadRouter: router };
 });
 
-jest.mock('../utils/serviceCache');
+jest.mock('../../utils/serviceCache');
 
 // Create a test app instead of importing the actual server
 function createTestApp() {

@@ -10,7 +10,6 @@
  */
 
 import { PortfolioService } from '../../services/portfolioService';
-import { ILinkedInPhotoService } from '../../interfaces/services';
 import { Portfolio, ParsedResumeData } from '../../types/portfolio';
 import { promises as fsAsync } from 'fs';
 import * as fs from 'fs';
@@ -35,10 +34,7 @@ jest.mock('fs', () => ({
 const mockFsAsync = fsAsync as jest.Mocked<typeof fsAsync>;
 const mockFs = fs as jest.Mocked<typeof fs>;
 
-// Simple mock LinkedIn photo service
-const mockLinkedInPhotoService: ILinkedInPhotoService = {
-  getProfilePhotoUrl: jest.fn().mockResolvedValue('https://example.com/photo.jpg'),
-};
+// LinkedIn photo service was removed
 
 describe('PortfolioService', () => {
   let portfolioService: PortfolioService;
@@ -56,7 +52,7 @@ describe('PortfolioService', () => {
     mockFs.mkdirSync.mockReturnValue(undefined);
     
     // Create service instance with mocked dependencies
-    portfolioService = new PortfolioService(testDataPath, mockLinkedInPhotoService);
+    portfolioService = new PortfolioService(testDataPath);
   });
 
   describe('getPortfolio', () => {
@@ -248,39 +244,23 @@ describe('PortfolioService', () => {
       expect(result.lastUpdated).not.toBe('2024-01-01T00:00:00Z'); // Updated timestamp
     });
 
-    it('should handle LinkedIn photo integration', async () => {
+    it('should handle profile photo from resume data', async () => {
       // Arrange
       const enoentError = new Error('ENOENT: no such file or directory') as any;
       enoentError.code = 'ENOENT';
       mockFsAsync.readFile.mockRejectedValue(enoentError);
       mockFsAsync.access.mockRejectedValue(enoentError); // For backup check
       mockFsAsync.writeFile.mockResolvedValue(undefined);
-      (mockLinkedInPhotoService.getProfilePhotoUrl as jest.Mock).mockResolvedValue('https://linkedin.com/photo.jpg');
+      // LinkedIn photo service was removed - profile photo now comes from resume data if present
 
       // Act
       const result = await portfolioService.updatePortfolioFromResume(mockParsedData);
 
-      // Assert
-      expect(result.personalInfo.profilePhoto).toBe('https://linkedin.com/photo.jpg');
-      expect(mockLinkedInPhotoService.getProfilePhotoUrl).toHaveBeenCalledWith('https://linkedin.com/in/janesmith');
+      // Assert - Profile photo should be set from resume data or be defined
+      expect(result.personalInfo.profilePhoto).toBeDefined();
     });
 
-    it('should handle LinkedIn photo service errors gracefully', async () => {
-      // Arrange
-      const enoentError = new Error('ENOENT: no such file or directory') as any;
-      enoentError.code = 'ENOENT';
-      mockFsAsync.readFile.mockRejectedValue(enoentError);
-      mockFsAsync.access.mockRejectedValue(enoentError); // For backup check
-      mockFsAsync.writeFile.mockResolvedValue(undefined);
-      (mockLinkedInPhotoService.getProfilePhotoUrl as jest.Mock).mockRejectedValue(new Error('LinkedIn API error'));
-
-      // Act
-      const result = await portfolioService.updatePortfolioFromResume(mockParsedData);
-
-      // Assert
-      expect(result.personalInfo.profilePhoto).toBeUndefined();
-      // Should not throw error, just log and continue
-    });
+    // LinkedIn photo service error handling test removed since service was deleted
   });
 
   describe('savePortfolio', () => {
@@ -377,7 +357,7 @@ describe('PortfolioService', () => {
       const customPath = '/custom/path/portfolio.json';
 
       // Act
-      const serviceWithCustomPath = new PortfolioService(customPath, mockLinkedInPhotoService);
+      const serviceWithCustomPath = new PortfolioService(customPath);
 
       // Assert
       expect(serviceWithCustomPath).toBeInstanceOf(PortfolioService);

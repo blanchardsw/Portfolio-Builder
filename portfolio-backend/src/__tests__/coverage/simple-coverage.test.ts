@@ -22,7 +22,7 @@ describe('Simple Coverage Tests', () => {
   describe('ServiceCache', () => {
     it('should test cache clearing functionality', () => {
       // Import and test serviceCache
-      const serviceCache = require('../utils/serviceCache').serviceCache;
+      const serviceCache = require('../../utils/serviceCache').serviceCache;
       
       // Test that cache methods exist and can be called (only test if they exist)
       if (serviceCache.getResumeParser) {
@@ -339,7 +339,7 @@ describe('Simple Coverage Tests', () => {
   // Test constants and utilities
   describe('Constants and Utilities', () => {
     it('should test constants are defined', () => {
-      const constants = require('../config/constants');
+      const constants = require('../../config/constants');
       
       expect(constants.FILE_CONSTANTS).toBeDefined();
       expect(constants.MIME_TYPES).toBeDefined();

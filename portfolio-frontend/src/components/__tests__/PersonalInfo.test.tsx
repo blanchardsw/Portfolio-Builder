@@ -118,9 +118,10 @@ describe('PersonalInfo Component', () => {
       // Act
       render(<PersonalInfo personalInfo={mockPersonalInfo} />);
 
-      // Assert - Check for loading spinner div instead of text
+      // Assert - Check for loading state using opacity instead of display
       const loadingPlaceholder = screen.getByAltText(/john doe profile/i);
-      expect(loadingPlaceholder).toHaveStyle('display: none'); // Image should be hidden initially
+      expect(loadingPlaceholder).toHaveStyle('opacity: 0'); // Image should be transparent initially
+      expect(loadingPlaceholder).toHaveClass('loading'); // Should have loading class
       
       // Check that the loading spinner container exists
       const profilePhotoContainer = document.querySelector('.profile-photo');
@@ -136,9 +137,10 @@ describe('PersonalInfo Component', () => {
       // Simulate image load event
       fireEvent.load(profileImage);
 
-      // Assert - Check that image becomes visible after loading
+      // Assert - Check that image becomes visible after loading using opacity
       await waitFor(() => {
-        expect(profileImage).toHaveStyle('display: block');
+        expect(profileImage).toHaveStyle('opacity: 1');
+        expect(profileImage).toHaveClass('loaded');
       });
     });
 

@@ -14,18 +14,18 @@ import fs from 'fs';
 import path from 'path';
 
 // Mock all dependencies
-jest.mock('../utils/serviceCache');
+jest.mock('../../utils/serviceCache');
 jest.mock('fs');
 jest.mock('path');
 
 // Mock the routes
-jest.mock('../routes/auth', () => {
+jest.mock('../../routes/auth', () => {
   const router = express.Router();
   router.post('/validate-owner', (req, res) => res.json({ isOwner: true }));
   return router;
 });
 
-jest.mock('../routes/portfolio', () => ({
+jest.mock('../../routes/portfolio', () => ({
   portfolioRouter: (() => {
     const router = express.Router();
     router.get('/', (req, res) => res.json({ test: 'portfolio' }));
@@ -33,7 +33,7 @@ jest.mock('../routes/portfolio', () => ({
   })()
 }));
 
-jest.mock('../routes/upload', () => ({
+jest.mock('../../routes/upload', () => ({
   uploadRouter: (() => {
     const router = express.Router();
     router.post('/resume', (req, res) => res.json({ message: 'uploaded' }));

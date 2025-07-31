@@ -12,13 +12,11 @@ import { serviceCache } from '../../utils/serviceCache';
 import { ResumeParser } from '../../services/resumeParser';
 import { PortfolioService } from '../../services/portfolioService';
 import { FileSecurityService } from '../../services/fileSecurityService';
-import { LinkedInPhotoService } from '../../services/linkedinPhotoService';
 
 // Mock all services to avoid real instantiation
 jest.mock('../../services/resumeParser');
 jest.mock('../../services/portfolioService');
 jest.mock('../../services/fileSecurityService');
-jest.mock('../../services/linkedinPhotoService');
 
 describe('ServiceCache', () => {
   beforeEach(() => {
@@ -63,14 +61,7 @@ describe('ServiceCache', () => {
       expect(FileSecurityService).toHaveBeenCalledTimes(1); // Constructor called only once
     });
 
-    it('should create and cache LinkedInPhotoService service', () => {
-      const service1 = serviceCache.getLinkedInPhotoService();
-      const service2 = serviceCache.getLinkedInPhotoService();
-      
-      expect(service1).toBeDefined();
-      expect(service1).toBe(service2); // Should return same cached instance
-      expect(LinkedInPhotoService).toHaveBeenCalledTimes(1); // Constructor called only once
-    });
+    // LinkedIn photo service was removed - test removed
   });
 
   describe('generic service caching', () => {
