@@ -1,0 +1,12 @@
+.theme-toggle {
+  background: transparent;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: var(--icon-color);
+  transition: color 0.3s ease;
+}
+
+.theme-toggle:hover {
+  color: var(--icon-hover);
+}

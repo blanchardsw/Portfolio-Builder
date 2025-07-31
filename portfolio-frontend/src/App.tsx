@@ -1,5 +1,8 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import './App.css';
+import './styles/themes.css'; // Add this line
+import './index.css';         // Ensure global styles use theme variables
+
 import { Portfolio } from './types/portfolio';
 import { PersonalInfo } from './components/PersonalInfo';
 import { WorkExperience } from './components/WorkExperience';
@@ -7,6 +10,9 @@ import { Education } from './components/Education';
 import { Skills } from './components/Skills';
 import { ResumeUpload } from './components/ResumeUpload';
 import { portfolioApi } from './services/api';
+
+import { ThemeProvider } from './context/ThemeContext'; // Add this line
+import ThemeToggle from './components/ThemeToggle';     // Add this line
 
 function App() {
   const [portfolio, setPortfolio] = useState<Portfolio | null>(null);
@@ -47,7 +53,6 @@ function App() {
       const data = await portfolioApi.getPortfolio();
       setPortfolio(data);
       
-      // Update document title with candidate's name
       if (data.personalInfo?.name) {
         document.title = `${data.personalInfo.name} Portfolio`;
       } else {
@@ -67,7 +72,6 @@ function App() {
   const handleResumeUploaded = useCallback((newPortfolio: Portfolio) => {
     setPortfolio(newPortfolio);
     
-    // Update document title with new candidate's name
     if (newPortfolio.personalInfo?.name) {
       document.title = `${newPortfolio.personalInfo.name} Portfolio`;
     } else {
@@ -88,58 +92,67 @@ function App() {
   }
 
   return (
-    <div className="App">
-      
-      {showUpload && (
-        <ResumeUpload 
-          onUploadSuccess={handleResumeUploaded}
-          onClose={() => setShowUpload(false)}
-        />
-      )}
-      
-      {error && !portfolio ? (
-        <div className="welcome-section">
-          <div className="welcome-content">
-            <h1>Welcome to Your Portfolio</h1>
-            <p>{error}</p>
-            <button 
-              className="upload-btn primary"
-              onClick={() => setShowUpload(true)}
-            >
-              📄 Upload Resume
-            </button>
+    <ThemeProvider>
+      <div
+        className="App"
+        style={{
+          backgroundColor: 'var(--bg-color)',
+          color: 'var(--text-color)',
+          minHeight: '100vh',
+        }}
+      >
+        <ThemeToggle />
+
+        {showUpload && (
+          <ResumeUpload 
+            onUploadSuccess={handleResumeUploaded}
+            onClose={() => setShowUpload(false)}
+          />
+        )}
+        
+        {error && !portfolio ? (
+          <div className="welcome-section">
+            <div className="welcome-content">
+              <h1>Welcome to Your Portfolio</h1>
+              <p>{error}</p>
+              <button 
+                className="upload-btn primary"
+                onClick={() => setShowUpload(true)}
+              >
+                📄 Upload Resume
+              </button>
+            </div>
           </div>
-        </div>
-      ) : portfolio ? (
-        <main className="portfolio-content">
-          <PersonalInfo personalInfo={portfolio.personalInfo} />
-          <WorkExperience experiences={portfolio.workExperience} />
-          <Education education={portfolio.education} />
-          <Skills skills={portfolio.skills} />
-        </main>
-      ) : null}
-      
-      {/* Owner-only floating action button */}
-      {isOwner && portfolio && (
-        <button 
-          className="floating-upload-btn"
-          onClick={() => setShowUpload(true)}
-          title="Update Resume"
-        >
-          📄
-        </button>
-      )}
-      
-      {validatingAccess && (
-        <div className="validation-message">
-          Validating access...
-        </div>
-      )}
-      
-      <footer className="app-footer">
-        <p>Last updated: {portfolio?.lastUpdated ? new Date(portfolio.lastUpdated).toLocaleDateString() : 'Never'}</p>
-      </footer>
-    </div>
+        ) : portfolio ? (
+          <main className="portfolio-content">
+            <PersonalInfo personalInfo={portfolio.personalInfo} />
+            <WorkExperience experiences={portfolio.workExperience} />
+            <Education education={portfolio.education} />
+            <Skills skills={portfolio.skills} />
+          </main>
+        ) : null}
+        
+        {isOwner && portfolio && (
+          <button 
+            className="floating-upload-btn"
+            onClick={() => setShowUpload(true)}
+            title="Update Resume"
+          >
+            📄
+          </button>
+        )}
+        
+        {validatingAccess && (
+          <div className="validation-message">
+            Validating access...
+          </div>
+        )}
+        
+        <footer className="app-footer">
+          <p>Last updated: {portfolio?.lastUpdated ? new Date(portfolio.lastUpdated).toLocaleDateString() : 'Never'}</p>
+        </footer>
+      </div>
+    </ThemeProvider>
   );
 }
 

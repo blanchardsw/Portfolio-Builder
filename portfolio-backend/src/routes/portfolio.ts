@@ -1,10 +1,10 @@
 import express from 'express';
 import { PortfolioService } from '../services/portfolioService';
-// import { LinkedInPhotoService } from '../services/linkedinPhotoService';
+import { LinkedInPhotoService } from '../services/linkedinPhotoService';
 
 const router = express.Router();
 const portfolioService = new PortfolioService();
-// const linkedinPhotoService = new LinkedInPhotoService();
+const linkedinPhotoService = new LinkedInPhotoService();
 
 // Get complete portfolio data
 router.get('/', async (req, res) => {
@@ -20,18 +20,16 @@ router.get('/', async (req, res) => {
     
     // Enhance personal info with environment variables and dynamic LinkedIn photo
     const linkedinUrl = portfolio.personalInfo.linkedin || process.env.LINKEDIN_URL;
-    let profilePhotoUrl = null;
+    let profilePhotoUrl = process.env.REACT_APP_PROFILE_IMAGE_URL || null;
     
-    // TODO: Re-enable LinkedIn photo service after fixing startup issues
-    // Dynamically fetch LinkedIn profile photo if LinkedIn URL is available
-    // if (linkedinUrl) {
-    //   try {
-    //     profilePhotoUrl = await linkedinPhotoService.getProfilePhotoUrl(linkedinUrl);
-    //     console.log(`[DEBUG] LinkedIn profile photo result: ${profilePhotoUrl}`);
-    //   } catch (error) {
-    //     console.warn('Failed to fetch LinkedIn profile photo:', error);
-    //   }
-    // }
+     if (linkedinUrl) {
+       try {
+         profilePhotoUrl = await linkedinPhotoService.getProfilePhotoUrl(linkedinUrl);
+         console.log(`[DEBUG] LinkedIn profile photo result: ${profilePhotoUrl}`);
+       } catch (error) {
+         console.warn('Failed to fetch LinkedIn profile photo:', error);
+       }
+     }
     
     const enhancedPortfolio = {
       ...portfolio,
