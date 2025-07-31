@@ -1003,7 +1003,7 @@ class ResumeParser {
      */
     extractTechnologiesFromExperience(workExperience) {
         const techKeywords = [
-            'C#', '.NET', 'JavaScript', 'TypeScript', 'React', 'Angular', 'Vue', 'Node.js',
+            'C#', 'JavaScript', 'TypeScript', 'React', 'Angular', 'Vue', 'Node.js',
             'Python', 'Java', 'C++', 'AWS', 'Azure', 'Docker', 'Kubernetes', 'SQL', 'MongoDB',
             'PostgreSQL', 'MySQL', 'Redis', 'REST', 'GraphQL', 'Git', 'Jenkins', 'CI/CD',
             'Agile', 'Scrum', 'T-SQL', 'DynamoDB', 'OpenSearch', 'Kafka', 'SQS', 'S3',
@@ -1019,16 +1019,12 @@ class ResumeParser {
                 let regex;
                 switch (tech) {
                     case 'C#':
-                        // Match C# in various contexts (C#/.NET, C#/.Net, standalone C#)
+                        // Match C# in all contexts including C#/.NET (count C#/.NET as C#)
                         regex = /C#(?:\/\.NET|\/\.Net|\b)/gi;
                         break;
                     case 'C++':
                         // Match C++ with proper escaping of plus symbols
                         regex = /\bC\+\+\b/gi;
-                        break;
-                    case '.NET':
-                        // Match .NET in various contexts
-                        regex = /\.NET\b/gi;
                         break;
                     case 'ASP.NET':
                         // Match ASP.NET with escaped dot

@@ -8,15 +8,36 @@ const express_1 = __importDefault(require("express"));
 const multer_1 = __importDefault(require("multer"));
 const path_1 = __importDefault(require("path"));
 const fs_1 = __importDefault(require("fs"));
-const resumeParser_1 = require("../services/resumeParser");
-const portfolioService_1 = require("../services/portfolioService");
-const fileSecurityService_1 = require("../services/fileSecurityService");
+const serviceCache_1 = require("../utils/serviceCache");
 const router = express_1.default.Router();
 exports.uploadRouter = router;
-const resumeParser = new resumeParser_1.ResumeParser();
-const portfolioService = new portfolioService_1.PortfolioService();
-const fileSecurityService = new fileSecurityService_1.FileSecurityService();
-// Configure multer for file uploads
+// Use cached services for better performance
+const resumeParser = serviceCache_1.serviceCache.getResumeParser();
+const portfolioService = serviceCache_1.serviceCache.getPortfolioService();
+const fileSecurityService = serviceCache_1.serviceCache.getFileSecurityService();
+/**
+ * Multer configuration for secure file uploads.
+ *
+ * This configuration implements the first layer of our multi-layered security approach:
+ *
+ * **File Size Limits**: Prevents DoS attacks through large file uploads
+ * - Maximum size defined in limits (typically 5MB)
+ * - Protects server disk space and memory usage
+ *
+ * **MIME Type Filtering**: Basic file type validation at upload time
+ * - Only allows PDF, DOCX, DOC, and TXT files
+ * - Prevents obvious malicious file types (executables, scripts)
+ * - Note: This is just the first check - deeper validation happens later
+ *
+ * **Temporary Storage**: Files are stored in 'uploads/' directory temporarily
+ * - Files are processed and then cleaned up
+ * - Prevents accumulation of uploaded files on disk
+ *
+ * Additional security layers are applied after upload:
+ * 1. File signature validation (magic number checking)
+ * 2. Content scanning for malicious patterns
+ * 3. Resume parsing and validation
+ */
 const storage = multer_1.default.diskStorage({
     destination: (req, file, cb) => {
         const uploadDir = path_1.default.join(__dirname, '../../uploads');
@@ -52,10 +73,86 @@ const upload = (0, multer_1.default)({
         fileSize: 5 * 1024 * 1024 // 5MB limit
     }
 });
-// Upload and parse resume endpoint
+// Error handling middleware for multer
+router.use('/resume', (error, req, res, next) => {
+    if (error instanceof multer_1.default.MulterError) {
+        console.error('❌ Multer error:', error.message);
+        if (error.code === 'LIMIT_FILE_SIZE') {
+            return res.status(400).json({ error: 'File too large. Maximum size is 5MB.' });
+        }
+        return res.status(400).json({ error: `Upload error: ${error.message}` });
+    }
+    else if (error) {
+        console.error('❌ File filter error:', error.message);
+        return res.status(400).json({ error: error.message });
+    }
+    next();
+});
+/**
+ * Resume upload and processing endpoint.
+ *
+ * This endpoint implements a comprehensive multi-stage pipeline for secure resume processing:
+ *
+ * **Stage 1: File Upload Validation (Multer)**
+ * - MIME type validation (PDF, DOCX, DOC, TXT only)
+ * - File size limits (5MB maximum)
+ * - Temporary file storage with unique naming
+ *
+ * **Stage 2: Security Scanning**
+ * - File signature validation (magic number verification)
+ * - Content scanning for malicious patterns (scripts, executables, macros)
+ * - Threat detection and quarantine system
+ * - File integrity verification with hash calculation
+ *
+ * **Stage 3: Resume Parsing**
+ * - Content extraction from supported formats
+ * - Structured data parsing (personal info, experience, education, skills)
+ * - Data validation and normalization
+ *
+ * **Stage 4: Portfolio Integration**
+ * - Merging parsed data with existing portfolio
+ * - LinkedIn profile photo fetching
+ * - Environment variable fallbacks for missing data
+ * - Data backup and atomic updates
+ *
+ * **Error Handling**
+ * - Detailed logging for debugging
+ * - User-friendly error messages
+ * - Automatic file cleanup on errors
+ * - Structured error responses with threat details
+ *
+ * @route POST /api/upload/resume
+ * @param {Express.Multer.File} resume - Resume file (PDF, DOCX, DOC, or TXT)
+ * @returns {Object} Success response with updated portfolio data
+ * @returns {Object} Error response with details for debugging
+ *
+ * @example
+ * ```javascript
+ * // Frontend usage
+ * const formData = new FormData();
+ * formData.append('resume', file);
+ *
+ * const response = await fetch('/api/upload/resume', {
+ *   method: 'POST',
+ *   body: formData
+ * });
+ *
+ * if (response.ok) {
+ *   const result = await response.json();
+ *   console.log('Portfolio updated:', result.portfolio);
+ * } else {
+ *   const error = await response.json();
+ *   console.error('Upload failed:', error.error);
+ * }
+ * ```
+ */
 router.post('/resume', upload.single('resume'), async (req, res) => {
     try {
+        console.log('📤 Upload request received');
+        console.log('📋 Request headers:', req.headers);
+        console.log('📁 Multer file info:', req.file ? 'File received' : 'No file');
         if (!req.file) {
+            console.error('❌ No file uploaded - multer did not process any file');
             return res.status(400).json({ error: 'No file uploaded' });
         }
         console.log(`📄 Processing resume: ${req.file.originalname}`);

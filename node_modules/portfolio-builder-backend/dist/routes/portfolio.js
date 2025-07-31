@@ -20,6 +20,8 @@ router.get('/', async (req, res) => {
             });
         }
         // Enhance personal info with environment variables
+        const linkedinUrl = portfolio.personalInfo.linkedin || process.env.LINKEDIN_URL;
+        const profilePhotoUrl = process.env.LINKEDIN_PHOTO_URL || null;
         const enhancedPortfolio = {
             ...portfolio,
             personalInfo: {
@@ -27,7 +29,9 @@ router.get('/', async (req, res) => {
                 // Add GitHub URL from environment variable if not already present
                 github: portfolio.personalInfo.github || process.env.GITHUB_URL,
                 // Add LinkedIn URL from environment variable if not already present
-                linkedin: portfolio.personalInfo.linkedin || process.env.LINKEDIN_URL
+                linkedin: linkedinUrl,
+                // Add dynamic LinkedIn profile photo
+                profilePhoto: profilePhotoUrl
             }
         };
         res.json(enhancedPortfolio);

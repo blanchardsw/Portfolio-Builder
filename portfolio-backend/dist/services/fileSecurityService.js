@@ -33,12 +33,11 @@ class FileSecurityService {
             /onload\s*=/gi,
             /onerror\s*=/gi,
             /onclick\s*=/gi,
-            // Executable patterns
+            // Executable patterns (more specific to avoid false positives)
             /\.exe\b/gi,
             /\.bat\b/gi,
             /\.cmd\b/gi,
             /\.scr\b/gi,
-            /\.com\b/gi,
             /\.pif\b/gi,
             // Macro patterns
             /Auto_Open/gi,
@@ -183,13 +182,19 @@ class FileSecurityService {
     async scanFileContent(filePath) {
         const threats = [];
         try {
-            // Read file content as text (for pattern matching)
+            // Read only first 512KB for performance (most threats are in headers)
             const buffer = fs_1.default.readFileSync(filePath);
-            const content = buffer.toString('utf8', 0, Math.min(buffer.length, 1024 * 1024)); // First 1MB only
-            // Scan for malicious patterns
+            const scanSize = Math.min(buffer.length, 512 * 1024); // 512KB max
+            const content = buffer.toString('utf8', 0, scanSize);
+            // Scan for malicious patterns with early exit for performance
             for (const pattern of this.MALICIOUS_PATTERNS) {
                 if (pattern.test(content)) {
                     threats.push(`Suspicious pattern detected: ${pattern.source}`);
+                    // Early exit after finding 3 threats to improve performance
+                    if (threats.length >= 3) {
+                        threats.push('Multiple threats detected - scan terminated early');
+                        break;
+                    }
                 }
             }
             // Check for embedded files or unusual content

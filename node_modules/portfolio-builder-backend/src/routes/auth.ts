@@ -1,6 +1,6 @@
 import express from 'express';
 
-const router = express.Router();
+const router: express.Router = express.Router();
 
 /**
  * Validate owner access key

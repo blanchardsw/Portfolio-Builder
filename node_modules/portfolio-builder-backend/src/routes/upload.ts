@@ -4,7 +4,7 @@ import path from 'path';
 import fs from 'fs';
 import { serviceCache } from '../utils/serviceCache';
 
-const router = express.Router();
+const router: express.Router = express.Router();
 // Use cached services for better performance
 const resumeParser = serviceCache.getResumeParser();
 const portfolioService = serviceCache.getPortfolioService();

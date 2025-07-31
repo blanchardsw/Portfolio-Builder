@@ -7,6 +7,7 @@ export interface PersonalInfo {
     github?: string;
     website?: string;
     summary?: string;
+    profilePhoto?: string;
 }
 export interface WorkExperience {
     id: string;
@@ -32,10 +33,12 @@ export interface Education {
     coursework?: string[];
     website?: string;
 }
+export type SkillCategory = 'technical' | 'soft' | 'language';
+export type SkillLevel = 'beginner' | 'intermediate' | 'advanced' | 'expert';
 export interface Skill {
     name: string;
-    category: 'technical' | 'soft' | 'language';
-    level?: 'beginner' | 'intermediate' | 'advanced' | 'expert';
+    category: SkillCategory;
+    level?: SkillLevel;
 }
 export interface Project {
     id: string;
@@ -55,11 +58,32 @@ export interface Portfolio {
     projects: Project[];
     lastUpdated: string;
 }
+export type MimeType = 'application/pdf' | 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' | 'application/msword' | 'text/plain';
+export type FileExtension = '.pdf' | '.docx' | '.doc' | '.txt';
 export interface ParsedResumeData {
     personalInfo: Partial<PersonalInfo>;
     workExperience: Partial<WorkExperience>[];
     education: Partial<Education>[];
     skills: Partial<Skill>[];
     projects: Partial<Project>[];
+}
+export type RequiredPersonalInfo = Required<Pick<PersonalInfo, 'name' | 'email'>>;
+export type OptionalPersonalInfo = Partial<Omit<PersonalInfo, 'name' | 'email'>>;
+export type CompletePersonalInfo = RequiredPersonalInfo & OptionalPersonalInfo;
+export interface UploadResponse {
+    message: string;
+    portfolio: Portfolio;
+    parsedData: {
+        personalInfo: Partial<PersonalInfo>;
+        workExperienceCount: number;
+        educationCount: number;
+        skillsCount: number;
+        projectsCount: number;
+    };
+}
+export interface ErrorResponse {
+    error: string;
+    details?: string;
+    threats?: string[];
 }
 //# sourceMappingURL=portfolio.d.ts.map
