@@ -1,11 +1,6 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.setupSwagger = void 0;
-const swagger_jsdoc_1 = __importDefault(require("swagger-jsdoc"));
-const swagger_ui_express_1 = __importDefault(require("swagger-ui-express"));
 const options = {
     definition: {
         openapi: '3.0.0',
@@ -145,19 +140,21 @@ const options = {
     },
     apis: ['./src/routes/*.ts'], // Path to the API docs
 };
-const specs = (0, swagger_jsdoc_1.default)(options);
+// const specs = swaggerJsdoc(options);
 const setupSwagger = (app) => {
-    app.use('/api/docs', swagger_ui_express_1.default.serve, swagger_ui_express_1.default.setup(specs, {
-        explorer: true,
-        customCss: '.swagger-ui .topbar { display: none }',
-        customSiteTitle: 'Portfolio Builder API Documentation',
-    }));
+    // Swagger temporarily disabled - install swagger-jsdoc and swagger-ui-express to enable
+    console.log('Swagger documentation disabled - install dependencies to enable');
+    // app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(specs, {
+    //   explorer: true,
+    //   customCss: '.swagger-ui .topbar { display: none }',
+    //   customSiteTitle: 'Portfolio Builder API Documentation',
+    // }));
     // Serve raw OpenAPI spec
     app.get('/api/docs.json', (req, res) => {
         res.setHeader('Content-Type', 'application/json');
-        res.send(specs);
+        res.send({ message: 'Swagger documentation disabled - install dependencies to enable' });
     });
 };
 exports.setupSwagger = setupSwagger;
-exports.default = specs;
+// export default specs;
 //# sourceMappingURL=swagger.js.map

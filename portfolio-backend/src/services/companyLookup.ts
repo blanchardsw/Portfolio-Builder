@@ -10,6 +10,7 @@ export class CompanyLookupService {
   private cache: Map<string, CompanyInfo> = new Map();
   private readonly timeout = 5000; // 5 second timeout
   private knownCompanies: Map<string, string> = new Map([
+    // Companies
     ['google', 'www.google.com'],
     ['microsoft', 'www.microsoft.com'],
     ['apple', 'www.apple.com'],
@@ -24,7 +25,22 @@ export class CompanyLookupService {
     ['tesla', 'www.tesla.com'],
     ['kaseya', 'www.kaseya.com'],
     ['ainsworth game technology', 'www.ainsworth.com.au'],
-    ['ainsworth', 'www.ainsworth.com.au']
+    ['ainsworth', 'www.ainsworth.com.au'],
+    // Educational Institutions
+    ['university of louisiana at lafayette', 'louisiana.edu'],
+    ['university of louisiana', 'louisiana.edu'],
+    ['ull', 'louisiana.edu'],
+    ['ul lafayette', 'louisiana.edu'],
+    ['harvard university', 'harvard.edu'],
+    ['harvard', 'harvard.edu'],
+    ['stanford university', 'stanford.edu'],
+    ['stanford', 'stanford.edu'],
+    ['mit', 'mit.edu'],
+    ['massachusetts institute of technology', 'mit.edu'],
+    ['university of california berkeley', 'berkeley.edu'],
+    ['uc berkeley', 'berkeley.edu'],
+    ['university of texas at austin', 'utexas.edu'],
+    ['ut austin', 'utexas.edu']
   ]);
 
   /**
@@ -45,11 +61,26 @@ export class CompanyLookupService {
     }
 
     try {
+      // First check if it's a known company/institution
+      const knownWebsite = this.knownCompanies.get(normalizedName);
+      if (knownWebsite) {
+        const fullUrl = knownWebsite.startsWith('http') ? knownWebsite : `https://${knownWebsite}`;
+        if (await this.isValidWebsite(fullUrl)) {
+          const result = {
+            name: companyName,
+            website: fullUrl,
+            domain: new URL(fullUrl).hostname
+          };
+          this.cache.set(normalizedName, result);
+          return result;
+        }
+      }
+      
       // Try multiple strategies to find the company website
       const strategies = [
+        () => this.trySearchEngineApproach(normalizedName), // Try Google search first
         () => this.tryDirectDomain(normalizedName),
-        () => this.tryCommonDomainVariations(normalizedName),
-        () => this.trySearchEngineApproach(normalizedName)
+        () => this.tryCommonDomainVariations(normalizedName)
       ];
 
       for (const strategy of strategies) {
@@ -144,42 +175,102 @@ export class CompanyLookupService {
   }
 
   /**
-   * Try a simple search-based approach using known company mappings
+   * Use Google search to find the actual company website
    */
   private async trySearchEngineApproach(normalizedName: string): Promise<CompanyInfo> {
-    // Known company mappings for common companies
-    const knownCompanies: { [key: string]: string } = {
-      'google': 'https://www.google.com',
-      'microsoft': 'https://www.microsoft.com',
-      'apple': 'https://www.apple.com',
-      'amazon': 'https://www.amazon.com',
-      'facebook': 'https://www.facebook.com',
-      'meta': 'https://www.meta.com',
-      'netflix': 'https://www.netflix.com',
-      'spotify': 'https://www.spotify.com',
-      'airbnb': 'https://www.airbnb.com',
-      'uber': 'https://www.uber.com',
-      'lyft': 'https://www.lyft.com',
-      'tesla': 'https://www.tesla.com',
-      'kaseya': 'https://www.kaseya.com',
-      'ainsworth game technology': 'https://www.ainsworth.com.au',
-      'ainsworth': 'https://www.ainsworth.com.au'
-    };
-
-    const lowerName = normalizedName.toLowerCase();
-    for (const [key, url] of Object.entries(knownCompanies)) {
-      if (lowerName.includes(key) || key.includes(lowerName)) {
-        if (await this.isValidWebsite(url)) {
-          return {
-            name: normalizedName,
-            website: url,
-            domain: new URL(url).hostname
-          };
+    try {
+      // Use a Google search query to find the company's official website
+      const searchQuery = `${normalizedName} official website`;
+      const googleSearchUrl = `https://www.google.com/search?q=${encodeURIComponent(searchQuery)}&num=5`;
+      
+      console.log(`Searching for: ${searchQuery}`);
+      
+      const response = await axios.get(googleSearchUrl, {
+        timeout: this.timeout,
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+        }
+      });
+      
+      // Extract URLs from Google search results
+      const html = response.data;
+      const urlRegex = /href="\/url\?q=([^&]+)&/g;
+      const urls: string[] = [];
+      
+      let match;
+      while ((match = urlRegex.exec(html)) !== null) {
+        try {
+          const decodedUrl = decodeURIComponent(match[1]);
+          if (this.isLikelyCompanyWebsite(decodedUrl, normalizedName)) {
+            urls.push(decodedUrl);
+          }
+        } catch (e) {
+          // Skip invalid URLs
+          continue;
         }
       }
+      
+      // Try each URL to find the best match
+      for (const url of urls.slice(0, 3)) { // Check top 3 results
+        try {
+          if (await this.isValidWebsite(url)) {
+            console.log(`Found website for ${normalizedName}: ${url}`);
+            return {
+              name: normalizedName,
+              website: url,
+              domain: new URL(url).hostname
+            };
+          }
+        } catch (e) {
+          continue;
+        }
+      }
+      
+      throw new Error('No valid website found in search results');
+    } catch (error) {
+      console.log(`Google search failed for ${normalizedName}:`, error);
+      throw new Error('Search approach failed');
     }
-
-    throw new Error('Search approach not found');
+  }
+  
+  /**
+   * Check if a URL is likely to be a company's official website
+   */
+  private isLikelyCompanyWebsite(url: string, companyName: string): boolean {
+    try {
+      const parsedUrl = new URL(url);
+      const hostname = parsedUrl.hostname.toLowerCase();
+      const companyWords = companyName.toLowerCase().split(/\s+/);
+      
+      // Skip common non-company domains
+      const skipDomains = ['google.com', 'facebook.com', 'linkedin.com', 'twitter.com', 'youtube.com', 'wikipedia.org', 'crunchbase.com', 'glassdoor.com'];
+      if (skipDomains.some(domain => hostname.includes(domain))) {
+        return false;
+      }
+      
+      // Check if the domain contains company name words
+      const domainParts = hostname.replace('www.', '').split('.');
+      const mainDomain = domainParts[0];
+      
+      // Look for company name in domain
+      for (const word of companyWords) {
+        if (word.length > 2 && (mainDomain.includes(word) || word.includes(mainDomain))) {
+          return true;
+        }
+      }
+      
+      // Check for exact matches or close matches
+      const normalizedCompany = companyName.toLowerCase().replace(/[^a-z0-9]/g, '');
+      const normalizedDomain = mainDomain.replace(/[^a-z0-9]/g, '');
+      
+      if (normalizedDomain.includes(normalizedCompany) || normalizedCompany.includes(normalizedDomain)) {
+        return true;
+      }
+      
+      return false;
+    } catch (e) {
+      return false;
+    }
   }
 
   /**

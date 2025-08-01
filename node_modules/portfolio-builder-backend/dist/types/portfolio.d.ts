@@ -33,7 +33,7 @@ export interface Education {
     coursework?: string[];
     website?: string;
 }
-export type SkillCategory = 'technical' | 'soft' | 'language';
+export type SkillCategory = 'technical' | 'soft' | 'language' | 'programming-languages' | 'frameworks' | 'databases' | 'tools' | 'testing' | 'cloud' | 'web-technologies' | 'backend' | 'mobile';
 export type SkillLevel = 'beginner' | 'intermediate' | 'advanced' | 'expert';
 export interface Skill {
     name: string;

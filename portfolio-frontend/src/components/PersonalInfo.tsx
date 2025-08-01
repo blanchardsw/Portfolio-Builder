@@ -87,7 +87,15 @@ const PersonalInfo: React.FC<PersonalInfoProps> = memo(({ personalInfo }) => {
             </div>
           )}
           <div className="personal-text">
-            <h1 className="name">{personalInfo.name}</h1>
+            <div className="name-location">
+              <h1 className="name">{personalInfo.name}</h1>
+              {personalInfo.location && (
+                <span className="location-badge">
+                  <span className="location-icon">📍</span>
+                  {personalInfo.location}
+                </span>
+              )}
+            </div>
             {personalInfo.summary && (
               <p className="summary">{personalInfo.summary}</p>
             )}
@@ -109,12 +117,7 @@ const PersonalInfo: React.FC<PersonalInfoProps> = memo(({ personalInfo }) => {
             </div>
           )}
           
-          {personalInfo.location && (
-            <div className="contact-item">
-              <span className="contact-icon">📍</span>
-              <span>{personalInfo.location}</span>
-            </div>
-          )}
+
           
           {personalInfo.linkedin && (
             <div className="contact-item">

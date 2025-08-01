@@ -1,0 +1,68 @@
+=== RESUME PARSING DEBUG ===
+Timestamp: 2025-08-01T00:41:45.139Z
+Total text length: 2725 characters
+First 500 characters of text:
+
+
+
+Stephen Blanchard 
+Chicago, IL 337-303-5029 
+blanchardsw@yahoo.com
+ 
+https://swb-portfolio.netlify.app 
+ 
+Senior Software Engineer with 11+ years of experience architecting scalable backend systems, mentoring engineers, and driving 
+modernization initiatives across logistics, gaming, and fintech domains. Adept in .NET, AWS, and secure CI/CD pipelines. Passionate 
+about building resilient APIs, optimizing performance, and delivering user-centric solutions.
+ 
+ 
+ EDUCATION 
+ 
+ 
+University of Loui
+
+Total lines after filtering: 40
+
+--- All lines ---
+0: "Stephen Blanchard"
+1: "Chicago, IL 337-303-5029"
+2: "blanchardsw@yahoo.com"
+3: "https://swb-portfolio.netlify.app"
+4: "Senior Software Engineer with 11+ years of experience architecting scalable backend systems, mentoring engineers, and driving"
+5: "modernization initiatives across logistics, gaming, and fintech domains. Adept in .NET, AWS, and secure CI/CD pipelines. Passionate"
+6: "about building resilient APIs, optimizing performance, and delivering user-centric solutions."
+7: "EDUCATION"
+8: "University of Louisiana at Lafayette                                                December 2015"
+9: "● Bachelor of Science in Computer Science"
+10: "SKILLS & TOOLS"
+11: "Languages: C#, JavaScript, TypeScript, SQL, C++"
+12: "Frameworks: .NET Core, React"
+13: "Cloud & DevOps: AWS, GitHub Actions, Netlify"
+14: "Security: OAuth2, OIDC, MFA, TOTP, SSO"
+15: "Monitoring: OpenTelemetry, Kibana"
+16: "Testing: xUnit, Jest"
+17: "CI/CD:: Azure DevOps, GitHub, Jenkins, Veracode, SonarQube"
+18: "EXPERIENCE"
+19: "First American Title — Senior Software Engineer | August 2021 – Present"
+20: "● Spearheaded modernization of escrow systems by replacing legacy ASP/.NET with minimal APIs and AWS-backed services."
+21: "● Designed and implemented secure CI/CD pipelines using GitHub Actions, SonarQube, and Veracode."
+22: "● Mentored two engineers, resulting in one promotion and improved onboarding efficiency."
+23: "● Reduced latency from 1 second to 1 microsecond in critical API endpoints."
+24: "● Led architecture for multi-tenant document generation system using Razor templates and S3."
+25: "Kaseya — Senior Software Engineer | March 2017  – August 2021"
+26: "● Led design and rollout of SSO/OIDC system for global users, integrating with Auth0 and custom MFA flows."
+27: "● Developed secure onboarding flows for VSA, IT Glue, and BMS platforms."
+28: "● Implemented feature toggles and audit logging for sensitive user actions."
+29: "● Collaborated across teams to unify authentication strategies and reduce support overhead."
+30: "Ainsworth Game Technology — Game Developer | February 2016 – March 2017"
+31: "● Engine-level breakthrough enabling dynamic symbol highlighting under constrained C++ tooling."
+32: "● Built internal tools for game designers to preview and validate symbol behavior."
+33: "● Refactored legacy game logic into modular components, improving maintainability and test coverage."
+34: "● Supported QA and compliance teams with automated validation scripts."
+35: "Enterprise Data Concepts — Software Engineer | January 2014 – February 2016"
+36: "● Sole developer responsible for API and internal tools driving technician field operations."
+37: "● Built scheduling and dispatch systems integrated with GPS and SMS alerts."
+38: "● Migrated legacy VB.NET codebases to modern C# services."
+39: "● Designed reporting dashboards for operations and customer service teams."
+
+--- Calling extractWorkExperience ---

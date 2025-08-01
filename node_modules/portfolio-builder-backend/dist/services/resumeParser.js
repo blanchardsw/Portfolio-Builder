@@ -726,29 +726,102 @@ class ResumeParser {
     }
     extractSkills(text, lines) {
         const skills = [];
-        const skillKeywords = ['skills', 'technologies', 'technical skills', 'programming'];
+        const skillKeywords = ['skills', 'technologies', 'technical skills', 'programming', 'competencies', 'expertise'];
         let inSkillsSection = false;
+        let currentCategory = 'technical';
         for (let i = 0; i < lines.length; i++) {
-            const line = lines[i].toLowerCase();
-            if (skillKeywords.some(keyword => line.includes(keyword))) {
+            const line = lines[i];
+            const lowerLine = line.toLowerCase();
+            // Check if we're entering a skills section
+            if (skillKeywords.some(keyword => lowerLine.includes(keyword))) {
                 inSkillsSection = true;
                 continue;
             }
-            if (inSkillsSection && (line.includes('experience') || line.includes('education') || line.includes('projects'))) {
+            // Check if we're leaving the skills section
+            if (inSkillsSection && (lowerLine.includes('experience') || lowerLine.includes('education') ||
+                lowerLine.includes('projects') || lowerLine.includes('certifications') ||
+                lowerLine.includes('awards') || lowerLine.includes('publications'))) {
                 break;
             }
-            if (inSkillsSection && lines[i].length > 0) {
-                // Split by common delimiters
-                const skillItems = lines[i].split(/[,;|•·]/).map(s => s.trim()).filter(s => s.length > 0);
-                skillItems.forEach(skill => {
-                    skills.push({
-                        name: skill,
-                        category: 'technical' // Default to technical, can be refined
-                    });
-                });
+            if (inSkillsSection && line.length > 0) {
+                // Check for skill group headers (e.g., "Languages:", "Testing:", "Frameworks:")
+                const groupHeaderMatch = line.match(/^([A-Za-z\s&]+):\s*(.*)$/);
+                if (groupHeaderMatch) {
+                    // This is a skill group header
+                    const groupName = groupHeaderMatch[1].trim();
+                    const skillsAfterColon = groupHeaderMatch[2].trim();
+                    // Map group names to categories
+                    currentCategory = this.mapSkillGroupToCategory(groupName);
+                    // If there are skills on the same line after the colon, process them
+                    if (skillsAfterColon.length > 0) {
+                        this.parseSkillsFromLine(skillsAfterColon, currentCategory, skills);
+                    }
+                }
+                else {
+                    // Regular skill line - use current category
+                    this.parseSkillsFromLine(line, currentCategory, skills);
+                }
             }
         }
         return skills;
+    }
+    /**
+     * Map skill group names to appropriate categories
+     */
+    mapSkillGroupToCategory(groupName) {
+        const lowerGroup = groupName.toLowerCase();
+        if (lowerGroup.includes('language') || lowerGroup.includes('programming')) {
+            return 'programming-languages';
+        }
+        else if (lowerGroup.includes('framework') || lowerGroup.includes('library')) {
+            return 'frameworks';
+        }
+        else if (lowerGroup.includes('database') || lowerGroup.includes('data')) {
+            return 'databases';
+        }
+        else if (lowerGroup.includes('tool') || lowerGroup.includes('software')) {
+            return 'tools';
+        }
+        else if (lowerGroup.includes('test') || lowerGroup.includes('qa')) {
+            return 'testing';
+        }
+        else if (lowerGroup.includes('cloud') || lowerGroup.includes('aws') || lowerGroup.includes('azure')) {
+            return 'cloud';
+        }
+        else if (lowerGroup.includes('web') || lowerGroup.includes('frontend') || lowerGroup.includes('ui')) {
+            return 'web-technologies';
+        }
+        else if (lowerGroup.includes('backend') || lowerGroup.includes('server')) {
+            return 'backend';
+        }
+        else if (lowerGroup.includes('mobile') || lowerGroup.includes('ios') || lowerGroup.includes('android')) {
+            return 'mobile';
+        }
+        else {
+            return 'technical';
+        }
+    }
+    /**
+     * Parse skills from a line of text
+     */
+    parseSkillsFromLine(line, category, skills) {
+        // Handle multiple delimiters and clean up the skills
+        const skillItems = line
+            .split(/[,;|•·\n\r]/) // Split by common delimiters
+            .map(s => s.trim())
+            .filter(s => s.length > 0 && !s.match(/^[\s\-•·]+$/)) // Filter out empty or just punctuation
+            .map(s => s.replace(/^[\-•·\s]+/, '').replace(/[\-•·\s]+$/, '')) // Clean leading/trailing punctuation
+            .filter(s => s.length > 1); // Filter out single characters
+        skillItems.forEach(skill => {
+            // Avoid duplicates
+            const existingSkill = skills.find(s => s.name?.toLowerCase() === skill.toLowerCase());
+            if (!existingSkill) {
+                skills.push({
+                    name: skill,
+                    category: category
+                });
+            }
+        });
     }
     extractProjects(text, lines) {
         // Basic project extraction - can be enhanced

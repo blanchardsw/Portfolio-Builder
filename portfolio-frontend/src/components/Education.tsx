@@ -12,7 +12,22 @@ export const Education: React.FC<EducationProps> = ({ education }) => {
 
   const formatDate = (dateString: string) => {
     if (!dateString) return '';
+    
+    // Check if it's already in a readable format (e.g., "December 2015")
+    if (dateString.match(/^(january|february|march|april|may|june|july|august|september|october|november|december)\s+\d{4}$/i)) {
+      return dateString;
+    }
+    
+    // If it's just a year, return as-is
+    if (dateString.match(/^\d{4}$/)) {
+      return dateString;
+    }
+    
+    // Otherwise try to parse as date
     const date = new Date(dateString);
+    if (isNaN(date.getTime())) {
+      return dateString; // Return original if can't parse
+    }
     return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long' });
   };
 
@@ -44,8 +59,8 @@ export const Education: React.FC<EducationProps> = ({ education }) => {
               <div className="education-meta">
                 <span className="date-range">
                   {edu.endDate ? 
-                    `${formatDate(edu.startDate)} - ${formatDate(edu.endDate)}` : 
-                    formatDate(edu.startDate)
+                    formatDate(edu.endDate) : 
+                    (edu.startDate ? formatDate(edu.startDate) : '')
                   }
                 </span>
                 {edu.gpa && (

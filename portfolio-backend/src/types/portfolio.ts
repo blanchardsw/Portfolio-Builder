@@ -36,13 +36,14 @@ export interface Education {
   website?: string;
 }
 
-export type SkillCategory = 'technical' | 'soft' | 'language';
+export type SkillCategory = string; // Allow dynamic categories from resume
 export type SkillLevel = 'beginner' | 'intermediate' | 'advanced' | 'expert';
 
 export interface Skill {
   name: string;
   category: SkillCategory;
   level?: SkillLevel;
+  displayCategory?: string; // Original category name from resume (e.g., "Languages", "CI/CD", "Testing")
 }
 
 export interface Project {

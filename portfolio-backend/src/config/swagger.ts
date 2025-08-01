@@ -1,5 +1,5 @@
-import swaggerJsdoc from 'swagger-jsdoc';
-import swaggerUi from 'swagger-ui-express';
+// import swaggerJsdoc from 'swagger-jsdoc';
+// import swaggerUi from 'swagger-ui-express';
 import { Application } from 'express';
 
 const options = {
@@ -142,20 +142,22 @@ const options = {
   apis: ['./src/routes/*.ts'], // Path to the API docs
 };
 
-const specs = swaggerJsdoc(options);
+// const specs = swaggerJsdoc(options);
 
 export const setupSwagger = (app: Application): void => {
-  app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(specs, {
-    explorer: true,
-    customCss: '.swagger-ui .topbar { display: none }',
-    customSiteTitle: 'Portfolio Builder API Documentation',
-  }));
+  // Swagger temporarily disabled - install swagger-jsdoc and swagger-ui-express to enable
+  console.log('Swagger documentation disabled - install dependencies to enable');
+  // app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(specs, {
+  //   explorer: true,
+  //   customCss: '.swagger-ui .topbar { display: none }',
+  //   customSiteTitle: 'Portfolio Builder API Documentation',
+  // }));
 
   // Serve raw OpenAPI spec
   app.get('/api/docs.json', (req: any, res: any) => {
     res.setHeader('Content-Type', 'application/json');
-    res.send(specs);
+    res.send({ message: 'Swagger documentation disabled - install dependencies to enable' });
   });
 };
 
-export default specs;
+// export default specs;

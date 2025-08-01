@@ -10,30 +10,29 @@ export const Skills: React.FC<SkillsProps> = ({ skills }) => {
     return null;
   }
 
+  // Group skills by displayCategory (original category name from resume)
   const groupedSkills = skills.reduce((acc, skill) => {
-    if (!acc[skill.category]) {
-      acc[skill.category] = [];
+    const groupKey = skill.displayCategory || skill.category;
+    if (!acc[groupKey]) {
+      acc[groupKey] = [];
     }
-    acc[skill.category].push(skill);
+    acc[groupKey].push(skill);
     return acc;
   }, {} as Record<string, Skill[]>);
 
-  const getCategoryIcon = (category: string) => {
-    switch (category) {
-      case 'technical': return '💻';
-      case 'soft': return '🤝';
-      case 'language': return '🌍';
-      default: return '⭐';
-    }
-  };
-
-  const getCategoryTitle = (category: string) => {
-    switch (category) {
-      case 'technical': return 'Technical Skills';
-      case 'soft': return 'Soft Skills';
-      case 'language': return 'Languages';
-      default: return 'Skills';
-    }
+  const getCategoryIcon = (displayCategory: string) => {
+    const lower = displayCategory.toLowerCase();
+    if (lower.includes('language') || lower.includes('programming')) return '💻';
+    if (lower.includes('framework') || lower.includes('library')) return '🏗️';
+    if (lower.includes('database') || lower.includes('data')) return '🗄️';
+    if (lower.includes('tool') || lower.includes('software')) return '🔧';
+    if (lower.includes('test') || lower.includes('qa')) return '🧪';
+    if (lower.includes('cloud') || lower.includes('aws') || lower.includes('azure')) return '☁️';
+    if (lower.includes('web') || lower.includes('frontend') || lower.includes('ui')) return '🌐';
+    if (lower.includes('backend') || lower.includes('server')) return '⚙️';
+    if (lower.includes('mobile') || lower.includes('ios') || lower.includes('android')) return '📱';
+    if (lower.includes('ci/cd') || lower.includes('devops') || lower.includes('deployment')) return '🚀';
+    return '⭐';
   };
 
   const getLevelColor = (level?: string) => {
@@ -50,10 +49,10 @@ export const Skills: React.FC<SkillsProps> = ({ skills }) => {
     <section className="portfolio-section skills">
       <h2 className="section-title">🛠️ Skills</h2>
       <div className="section-content">
-        {Object.entries(groupedSkills).map(([category, categorySkills]) => (
-          <div key={category} className="skills-category">
+        {Object.entries(groupedSkills).map(([displayCategory, categorySkills]) => (
+          <div key={displayCategory} className="skills-category">
             <h3 className="category-title">
-              {getCategoryIcon(category)} {getCategoryTitle(category)}
+              {getCategoryIcon(displayCategory)} {displayCategory.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ')}
             </h3>
             <div className="skills-grid">
               {categorySkills.map((skill, index) => (

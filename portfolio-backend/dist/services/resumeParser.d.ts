@@ -28,6 +28,14 @@ export declare class ResumeParser {
     private cleanupExperiences;
     private extractEducation;
     private extractSkills;
+    /**
+     * Map skill group names to appropriate categories
+     */
+    private mapSkillGroupToCategory;
+    /**
+     * Parse skills from a line of text
+     */
+    private parseSkillsFromLine;
     private extractProjects;
     /**
      * Enrich work experience entries with company website information

@@ -35,8 +35,98 @@ app.use(express_1.default.urlencoded({ extended: true, limit: '10mb' }));
 app.use('/api/portfolio', portfolio_1.portfolioRouter);
 app.use('/api/upload', upload_1.uploadRouter);
 app.use('/api/auth', auth_1.default);
-// Setup Swagger API documentation
-// setupSwagger(app); // Uncomment after installing swagger dependencies
+// API Documentation endpoint (simple version)
+app.get('/api/docs', (req, res) => {
+    res.send(`
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>Portfolio Builder API Documentation</title>
+      <style>
+        body { font-family: Arial, sans-serif; margin: 40px; background: #f5f5f5; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h1 { color: #333; border-bottom: 2px solid #007acc; padding-bottom: 10px; }
+        h2 { color: #007acc; margin-top: 30px; }
+        .endpoint { background: #f8f9fa; padding: 15px; margin: 10px 0; border-radius: 5px; border-left: 4px solid #007acc; }
+        .method { font-weight: bold; color: #28a745; }
+        .url { font-family: monospace; background: #e9ecef; padding: 2px 6px; border-radius: 3px; }
+        .description { margin-top: 8px; color: #666; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 4px; overflow-x: auto; }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <h1>🚀 Portfolio Builder API</h1>
+        <p>A comprehensive API for portfolio generation and resume processing</p>
+        
+        <h2>📋 Available Endpoints</h2>
+        
+        <div class="endpoint">
+          <div><span class="method">GET</span> <span class="url">/api/portfolio</span></div>
+          <div class="description">Retrieve complete portfolio data including personal info, experience, education, and skills</div>
+        </div>
+        
+        <div class="endpoint">
+          <div><span class="method">POST</span> <span class="url">/api/upload/resume</span></div>
+          <div class="description">Upload and parse resume files (PDF, DOCX, DOC, TXT). Includes security validation and content analysis.</div>
+        </div>
+        
+        <div class="endpoint">
+          <div><span class="method">GET</span> <span class="url">/api/health</span></div>
+          <div class="description">Health check endpoint for monitoring server status</div>
+        </div>
+        
+        <div class="endpoint">
+          <div><span class="method">POST</span> <span class="url">/api/auth/check-owner/:key</span></div>
+          <div class="description">Validate owner access key for administrative functions</div>
+        </div>
+        
+        <h2>📊 Example Responses</h2>
+        
+        <h3>Portfolio Data (GET /api/portfolio)</h3>
+        <pre>{
+  "personalInfo": {
+    "name": "Stephen Blanchard",
+    "title": "Full Stack Developer",
+    "email": "stephen@example.com",
+    "phone": "+1 (555) 123-4567",
+    "location": "San Francisco, CA"
+  },
+  "experience": [...],
+  "education": [...],
+  "skills": [...]
+}</pre>
+        
+        <h3>File Upload (POST /api/upload/resume)</h3>
+        <pre>{
+  "success": true,
+  "filename": "resume_20240131_123456.pdf",
+  "originalName": "Stephen_Blanchard_Resume.pdf",
+  "size": 108746,
+  "analysis": {
+    "extractedText": "Stephen Blanchard\\nFull Stack Developer...",
+    "wordCount": 450
+  }
+}</pre>
+        
+        <h2>🔒 Security Features</h2>
+        <ul>
+          <li>File signature validation</li>
+          <li>Content scanning for malicious patterns</li>
+          <li>Size limits (100 bytes - 10MB)</li>
+          <li>Quarantine system for suspicious files</li>
+          <li>CORS protection</li>
+        </ul>
+        
+        <p style="margin-top: 40px; text-align: center; color: #666;">
+          <strong>Portfolio Builder API v1.0.0</strong><br>
+          Built with TypeScript, Express.js, and Node.js
+        </p>
+      </div>
+    </body>
+    </html>
+  `);
+});
 // Base API info endpoint
 app.get('/api', (req, res) => {
     res.status(200).json({
