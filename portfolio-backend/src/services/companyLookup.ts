@@ -53,6 +53,11 @@ export class CompanyLookupService {
    * @returns CompanyInfo with website URL if found, or just the name if not found
    */
   async findCompanyWebsite(companyName: string): Promise<CompanyInfo> {
+    // Handle null/undefined input
+    if (!companyName) {
+      return { name: companyName || '' };
+    }
+    
     // First check if it's in known companies
     if (this.knownCompanies.has(companyName.toLowerCase())) {
       return { name: companyName, website: this.knownCompanies.get(companyName.toLowerCase()) };
@@ -81,6 +86,19 @@ export class CompanyLookupService {
       console.error('Search failed:', error);
       return { name: companyName };
     }
+  }
+
+  /**
+   * Normalize company name for consistent lookup
+   */
+  normalizeCompanyName(name: string): string {
+    if (!name) return '';
+    return name
+      .toLowerCase()
+      .replace(/\b(inc|corp|corporation|ltd|limited|llc|company|co)\b\.?/g, '')
+      .replace(/[^\w\s]/g, '')
+      .trim()
+      .replace(/\s+/g, ' ');
   }
 
   /**

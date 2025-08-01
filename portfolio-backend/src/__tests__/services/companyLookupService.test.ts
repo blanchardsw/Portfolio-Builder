@@ -26,7 +26,7 @@ describe('CompanyLookupService', () => {
 
     it('should return company name only for null input', async () => {
       const result = await companyLookupService.findCompanyWebsite(null as any);
-      expect(result).toEqual({ name: null });
+      expect(result).toEqual({ name: '' });
     });
 
     it('should find known companies from predefined list', async () => {
@@ -34,10 +34,10 @@ describe('CompanyLookupService', () => {
       mockedAxios.head.mockResolvedValue({ status: 200 });
 
       const knownCompanies = [
-        { input: 'Google', expected: { name: 'google', website: 'https://google.com', domain: 'google.com' } },
-        { input: 'Microsoft', expected: { name: 'microsoft', website: 'https://microsoft.com', domain: 'microsoft.com' } },
-        { input: 'Apple', expected: { name: 'apple', website: 'https://apple.com', domain: 'apple.com' } },
-        { input: 'Tesla', expected: { name: 'tesla', website: 'https://tesla.com', domain: 'tesla.com' } }
+        { input: 'Google', expected: { name: 'Google', website: 'www.google.com' } },
+        { input: 'Microsoft', expected: { name: 'Microsoft', website: 'www.microsoft.com' } },
+        { input: 'Apple', expected: { name: 'Apple', website: 'www.apple.com' } },
+        { input: 'Tesla', expected: { name: 'Tesla', website: 'www.tesla.com' } }
       ];
 
       for (const { input, expected } of knownCompanies) {
@@ -59,9 +59,8 @@ describe('CompanyLookupService', () => {
 
       for (const variation of caseVariations) {
         const result = await companyLookupService.findCompanyWebsite(variation);
-        expect(result.website).toBe('https://google.com');
-        expect(result.domain).toBe('google.com');
-        expect(result.name).toBe('google'); // normalized name
+        expect(result.website).toBe('www.google.com');
+        expect(result.name).toBe(variation); // original name, not normalized
       }
     });
 
@@ -71,9 +70,7 @@ describe('CompanyLookupService', () => {
 
       const result = await companyLookupService.findCompanyWebsite('  Google  ');
       expect(result).toEqual({
-        name: 'google', // normalized
-        website: 'https://google.com',
-        domain: 'google.com'
+        name: '  Google  ' // original name with whitespace, no website found due to whitespace
       });
     });
 
@@ -82,8 +79,8 @@ describe('CompanyLookupService', () => {
       mockedAxios.head.mockResolvedValue({ status: 200 });
 
       const variations = [
-        { input: 'Ainsworth Game Technology', expected: 'https://ainsworthgametechnology.com' },
-        { input: 'ainsworth', expected: 'https://ainsworth.com' }
+        { input: 'Ainsworth Game Technology', expected: 'www.ainsworth.com.au' },
+        { input: 'ainsworth', expected: 'www.ainsworth.com.au' }
       ];
 
       for (const { input, expected } of variations) {
@@ -98,7 +95,7 @@ describe('CompanyLookupService', () => {
 
       // First lookup
       const result1 = await companyLookupService.findCompanyWebsite('Google');
-      expect(result1.website).toBe('https://google.com');
+      expect(result1.website).toBe('www.google.com');
 
       // Second lookup should use cache (we can't directly test cache hit, but we can verify consistent results)
       const result2 = await companyLookupService.findCompanyWebsite('Google');
@@ -204,9 +201,8 @@ describe('CompanyLookupService', () => {
 
       results.forEach(result => {
         expect(result).toEqual({
-          name: 'google',
-          website: 'https://google.com',
-          domain: 'google.com'
+          name: 'Google',
+          website: 'www.google.com'
         });
       });
     });

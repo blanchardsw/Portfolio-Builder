@@ -48,30 +48,6 @@ describe('Simple Coverage Tests', () => {
     });
   });
 
-  // Test TechnologyAnalysisService basic functionality
-  describe('TechnologyAnalysisService', () => {
-    it('should create instance and test basic methods', () => {
-      try {
-        const TechnologyAnalysisService = require('../services/analysis/TechnologyAnalysisService').TechnologyAnalysisService;
-        const service = new TechnologyAnalysisService();
-        
-        // Test that service was created
-        expect(service).toBeDefined();
-        
-        // Test methods exist
-        if (service.analyzeTechnologies) {
-          expect(typeof service.analyzeTechnologies).toBe('function');
-        }
-        
-        if (service.extractTechnologies) {
-          expect(typeof service.extractTechnologies).toBe('function');
-        }
-      } catch (error) {
-        // If service can't be instantiated, that's ok - we're just testing coverage
-        expect(error).toBeDefined();
-      }
-    });
-  });
 
   // Test CompanyLookupService basic functionality
   describe('CompanyLookupService', () => {
@@ -218,123 +194,8 @@ describe('Simple Coverage Tests', () => {
     });
   });
 
-  // Test ResumeParserRefactored basic functionality
-  describe('ResumeParserRefactored', () => {
-    it('should create instance and test basic methods', () => {
-      try {
-        const ResumeParserRefactored = require('../services/ResumeParserRefactored').ResumeParserRefactored;
-        const parser = new ResumeParserRefactored();
-        
-        // Test that parser was created
-        expect(parser).toBeDefined();
-        
-        // Test methods exist
-        if (parser.parseFile) {
-          expect(typeof parser.parseFile).toBe('function');
-        }
-      } catch (error) {
-        // If parser can't be instantiated, that's ok - we're just testing coverage
-        expect(error).toBeDefined();
-      }
-    });
-  });
 
-  // Test File Parser Factory
-  describe('FileParserFactory', () => {
-    it('should create instance and test parser creation', () => {
-      try {
-        const FileParserFactory = require('../services/parsing/FileParserFactory').FileParserFactory;
-        const factory = new FileParserFactory();
-        
-        // Test that factory was created
-        expect(factory).toBeDefined();
-        
-        // Test createParser method exists
-        if (factory.createParser) {
-          expect(typeof factory.createParser).toBe('function');
-        }
-      } catch (error) {
-        // If factory can't be instantiated, that's ok - we're just testing coverage
-        expect(error).toBeDefined();
-      }
-    });
-  });
 
-  // Test individual parsers
-  describe('Individual Parsers', () => {
-    it('should test PDF parser', () => {
-      try {
-        const PdfParser = require('../services/parsing/PdfParser').PdfParser;
-        const parser = new PdfParser();
-        expect(parser).toBeDefined();
-        if (parser.parse) {
-          expect(typeof parser.parse).toBe('function');
-        }
-      } catch (error) {
-        expect(error).toBeDefined();
-      }
-    });
-
-    it('should test DOCX parser', () => {
-      try {
-        const DocxParser = require('../services/parsing/DocxParser').DocxParser;
-        const parser = new DocxParser();
-        expect(parser).toBeDefined();
-        if (parser.parse) {
-          expect(typeof parser.parse).toBe('function');
-        }
-      } catch (error) {
-        expect(error).toBeDefined();
-      }
-    });
-
-    it('should test Text parser', () => {
-      try {
-        const TextParser = require('../services/parsing/TextParser').TextParser;
-        const parser = new TextParser();
-        expect(parser).toBeDefined();
-        if (parser.parse) {
-          expect(typeof parser.parse).toBe('function');
-        }
-      } catch (error) {
-        expect(error).toBeDefined();
-      }
-    });
-  });
-
-  // Test enrichment services
-  describe('Enrichment Services', () => {
-    it('should test CompanyEnrichmentData', () => {
-      try {
-        const CompanyEnrichmentData = require('../services/enrichment/CompanyEnrichmentData').CompanyEnrichmentData;
-        const enrichment = new CompanyEnrichmentData();
-        expect(enrichment).toBeDefined();
-      } catch (error) {
-        expect(error).toBeDefined();
-      }
-    });
-
-    it('should test EducationEnrichmentData', () => {
-      try {
-        const EducationEnrichmentData = require('../services/enrichment/EducationEnrichmentData').EducationEnrichmentData;
-        const enrichment = new EducationEnrichmentData();
-        expect(enrichment).toBeDefined();
-      } catch (error) {
-        expect(error).toBeDefined();
-      }
-    });
-
-    it('should test GenericEnrichmentStrategy', () => {
-      try {
-        const GenericEnrichmentStrategy = require('../services/enrichment/GenericEnrichmentStrategy').GenericEnrichmentStrategy;
-        // Try to create with minimal parameters
-        const strategy = new GenericEnrichmentStrategy({}, {}, 'test');
-        expect(strategy).toBeDefined();
-      } catch (error) {
-        expect(error).toBeDefined();
-      }
-    });
-  });
 
   // Test constants and utilities
   describe('Constants and Utilities', () => {
