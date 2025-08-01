@@ -43,7 +43,6 @@ export interface Skill {
   name: string;
   category: SkillCategory;
   level?: SkillLevel;
-  displayCategory?: string; // Original category name from resume (e.g., "Languages", "CI/CD", "Testing")
 }
 
 export interface Project {

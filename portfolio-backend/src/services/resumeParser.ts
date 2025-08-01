@@ -152,12 +152,21 @@ ${lines.map((line, i) => `${i}: "${line}"`).join('\n')}
     }
 
     // Extract location (look for patterns like "City, State" or "City, ST zipcode")
-    const locationRegex = /([A-Za-z\s]+,\s*[A-Z]{2}(?:\s+\d{5})?)/;
-    const locationMatch = text.match(locationRegex);
-    if (locationMatch) {
-      personalInfo.location = locationMatch[1];
-    }
+    // Use a more specific regex that looks for location after name or on its own line
+    const locationLines = text.split('\n');
+    let location = null;
 
+    for (const line of locationLines) {
+      const match = line.match(/^([A-Za-z\s]+,\s*[A-Z]{2})(?=\s|\t|$)/);
+      if (match) {
+        location = match[1].trim();
+    break;
+  }
+}
+
+if (location) {
+  personalInfo.location = location;
+}
     // Extract LinkedIn
     const linkedinRegex = /(?:https?:\/\/)?(?:www\.)?linkedin\.com\/in\/[A-Za-z0-9-]+/;
     const linkedinMatch = text.match(linkedinRegex);
@@ -364,8 +373,7 @@ ${lines.map((line, i) => `${i}: "${line}"`).join('\n')}
           skillsList.forEach((skillName, index) => {
             skills.push({
               name: skillName,
-              category: categoryName.toLowerCase().replace(/[^a-z0-9]/g, '-'), // Use actual category as slug
-              displayCategory: categoryName // Keep the original category name from resume
+              category: categoryName
             });
           });
         }

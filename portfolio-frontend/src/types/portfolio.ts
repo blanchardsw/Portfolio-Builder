@@ -40,7 +40,6 @@ export interface Skill {
   name: string;
   category: 'technical' | 'soft' | 'language' | 'programming-languages' | 'frameworks' | 'databases' | 'tools' | 'testing' | 'cloud' | 'web-technologies' | 'backend' | 'mobile';
   level?: 'beginner' | 'intermediate' | 'advanced' | 'expert';
-  displayCategory?: string; // Original category name from resume (e.g., "Languages", "CI/CD", "Testing")
 }
 
 export interface Project {

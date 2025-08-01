@@ -10,6 +10,11 @@ export const Education: React.FC<EducationProps> = ({ education }) => {
     return null;
   }
 
+  function normalizeUrl(url?: string): string {
+    if (!url) return '#';
+    return /^https?:\/\//i.test(url) ? url : `https://${url}`;
+  }
+
   const formatDate = (dateString: string) => {
     if (!dateString) return '';
     
@@ -44,7 +49,7 @@ export const Education: React.FC<EducationProps> = ({ education }) => {
                 {edu.website ? (
                   <h4 className="institution">
                     <a 
-                      href={edu.website} 
+                      href={normalizeUrl(edu.website)} 
                       target="_blank" 
                       rel="noopener noreferrer"
                       className="institution-link"

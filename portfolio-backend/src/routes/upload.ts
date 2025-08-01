@@ -91,29 +91,7 @@ router.use('/resume', (error: any, req: any, res: any, next: any) => {
  * 
  * This endpoint implements a comprehensive multi-stage pipeline for secure resume processing:
  * 
- * **Stage 1: File Upload Validation (Multer)**
- * - MIME type validation (PDF, DOCX, DOC, TXT only)
- * - File size limits (5MB maximum)
- * - Temporary file storage with unique naming
- * 
- * **Stage 2: Security Scanning**
- * - File signature validation (magic number verification)
- * - Content scanning for malicious patterns (scripts, executables, macros)
- * - Threat detection and quarantine system
- * - File integrity verification with hash calculation
- * 
- * **Stage 3: Resume Parsing**
- * - Content extraction from supported formats
- * - Structured data parsing (personal info, experience, education, skills)
- * - Data validation and normalization
- * 
- * **Stage 4: Portfolio Integration**
- * - Merging parsed data with existing portfolio
- * - LinkedIn profile photo fetching
- * - Environment variable fallbacks for missing data
- * - Data backup and atomic updates
- * 
- * **Error Handling**
+ * Error Handling
  * - Detailed logging for debugging
  * - User-friendly error messages
  * - Automatic file cleanup on errors

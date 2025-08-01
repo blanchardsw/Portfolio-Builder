@@ -3,7 +3,7 @@
     "name": "Stephen Blanchard",
     "email": "blanchardsw@yahoo.com",
     "phone": "337-303-5029",
-    "location": "\n\nStephen Blanchard \nChicago, IL",
+    "location": "Chicago, IL",
     "linkedin": "https://www.linkedin.com/in/stephenblanchard2/",
     "github": "https://github.com/blanchardsw",
     "summary": "Senior Software Engineer with 11+ years of experience specializing in SQL, C#, REST, T-SQL, AWS and other technologies. Proven track record in full-stack development, system architecture, and delivering scalable solutions.",
@@ -25,7 +25,7 @@
         "Led architecture for multi-tenant document generation system using Razor templates and S3."
       ],
       "technologies": [],
-      "website": "https://first.com"
+      "website": "www.firstam.com"
     },
     {
       "id": "exp_2",
@@ -41,7 +41,7 @@
         "Collaborated across teams to unify authentication strategies and reduce support overhead."
       ],
       "technologies": [],
-      "website": "https://kaseya.com"
+      "website": "www.kaseya.com"
     },
     {
       "id": "exp_3",
@@ -57,7 +57,7 @@
         "Supported QA and compliance teams with automated validation scripts."
       ],
       "technologies": [],
-      "website": "https://ainsworth.com"
+      "website": "www.ainsworth.com.au"
     },
     {
       "id": "exp_4",
@@ -73,7 +73,7 @@
         "Designed reporting dashboards for operations and customer service teams."
       ],
       "technologies": [],
-      "website": "https://enterprise.com"
+      "website": "www.enterprisedata.com"
     }
   ],
   "education": [
@@ -87,87 +87,87 @@
       "gpa": "",
       "honors": [],
       "coursework": [],
-      "website": "https://university.com"
+      "website": "louisiana.edu"
     }
   ],
   "skills": [
     {
       "name": "C#",
-      "category": "programming-languages"
+      "category": "Languages"
     },
     {
       "name": "JavaScript",
-      "category": "programming-languages"
+      "category": "Languages"
     },
     {
       "name": "TypeScript",
-      "category": "programming-languages"
+      "category": "Languages"
     },
     {
       "name": "SQL",
-      "category": "programming-languages"
+      "category": "Languages"
     },
     {
       "name": "C++",
-      "category": "programming-languages"
+      "category": "Languages"
     },
     {
       "name": ".NET Core",
-      "category": "frameworks"
+      "category": "Frameworks"
     },
     {
       "name": "React",
-      "category": "frameworks"
+      "category": "Frameworks"
     },
     {
       "name": "AWS",
-      "category": "cloud"
+      "category": "Cloud & DevOps"
     },
     {
       "name": "GitHub Actions",
-      "category": "cloud"
+      "category": "Cloud & DevOps"
     },
     {
       "name": "Netlify",
-      "category": "cloud"
+      "category": "Cloud & DevOps"
     },
     {
       "name": "OAuth2",
-      "category": "tools"
+      "category": "Security"
     },
     {
       "name": "OIDC",
-      "category": "tools"
+      "category": "Security"
     },
     {
       "name": "MFA",
-      "category": "tools"
+      "category": "Security"
     },
     {
       "name": "TOTP",
-      "category": "tools"
+      "category": "Security"
     },
     {
       "name": "SSO",
-      "category": "tools"
+      "category": "Security"
     },
     {
       "name": "OpenTelemetry",
-      "category": "tools"
+      "category": "Monitoring"
     },
     {
       "name": "Kibana",
-      "category": "tools"
+      "category": "Monitoring"
     },
     {
       "name": "xUnit",
-      "category": "testing"
+      "category": "Testing"
     },
     {
       "name": "Jest",
-      "category": "testing"
+      "category": "Testing"
     }
   ],
   "projects": [],
-  "lastUpdated": "2025-08-01T00:35:00.310Z"
+  "lastUpdated": "2025-08-01T02:33:51.409Z"
 }

@@ -10,6 +10,11 @@ export const WorkExperience: React.FC<WorkExperienceProps> = ({ experiences }) =
     return null;
   }
 
+  function normalizeUrl(url?: string): string {
+    if (!url) return '#';
+    return /^https?:\/\//i.test(url) ? url : `https://${url}`;
+  }  
+
   const formatDate = (dateString: string) => {
     if (!dateString) return '';
     const date = new Date(dateString);
@@ -28,8 +33,8 @@ export const WorkExperience: React.FC<WorkExperienceProps> = ({ experiences }) =
                 {experience.website ? (
                   <h4 className="company">
                     <a 
-                      href={experience.website} 
-                      target="_blank" 
+                      href={normalizeUrl(experience.website)}
+                      target="_blank"
                       rel="noopener noreferrer"
                       className="company-link"
                     >

@@ -1,5 +1,5 @@
 === RESUME PARSING DEBUG ===
-Timestamp: 2025-08-01T00:41:45.139Z
+Timestamp: 2025-08-01T02:39:37.293Z
 Total text length: 2725 characters
 First 500 characters of text:
 
@@ -65,4 +65,4 @@ Total lines after filtering: 40
 38: "● Migrated legacy VB.NET codebases to modern C# services."
 39: "● Designed reporting dashboards for operations and customer service teams."
 
---- Calling extractWorkExperience ---
+--- Calling extractWorkExperience ------ extractWorkExperience returned 4 entries ---

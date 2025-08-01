@@ -10,9 +10,9 @@ export const Skills: React.FC<SkillsProps> = ({ skills }) => {
     return null;
   }
 
-  // Group skills by displayCategory (original category name from resume)
+  // Group skills by category (original category name from resume)
   const groupedSkills = skills.reduce((acc, skill) => {
-    const groupKey = skill.displayCategory || skill.category;
+    const groupKey = skill.category;
     if (!acc[groupKey]) {
       acc[groupKey] = [];
     }
@@ -20,8 +20,8 @@ export const Skills: React.FC<SkillsProps> = ({ skills }) => {
     return acc;
   }, {} as Record<string, Skill[]>);
 
-  const getCategoryIcon = (displayCategory: string) => {
-    const lower = displayCategory.toLowerCase();
+  const getCategoryIcon = (category: string) => {
+    const lower = category.toLowerCase();
     if (lower.includes('language') || lower.includes('programming')) return '💻';
     if (lower.includes('framework') || lower.includes('library')) return '🏗️';
     if (lower.includes('database') || lower.includes('data')) return '🗄️';
@@ -49,10 +49,10 @@ export const Skills: React.FC<SkillsProps> = ({ skills }) => {
     <section className="portfolio-section skills">
       <h2 className="section-title">🛠️ Skills</h2>
       <div className="section-content">
-        {Object.entries(groupedSkills).map(([displayCategory, categorySkills]) => (
-          <div key={displayCategory} className="skills-category">
+        {Object.entries(groupedSkills).map(([category, categorySkills]) => (
+          <div key={category} className="skills-category">
             <h3 className="category-title">
-              {getCategoryIcon(displayCategory)} {displayCategory.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ')}
+              {getCategoryIcon(category)} {category.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ')}
             </h3>
             <div className="skills-grid">
               {categorySkills.map((skill, index) => (
